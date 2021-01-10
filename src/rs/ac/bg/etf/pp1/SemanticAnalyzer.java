@@ -146,7 +146,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	}
     
     public void visit(MulExpr mulExpr) {
-		Struct te = mulExpr.getExpr().struct;
+		Struct te = mulExpr.getFactor().struct;
 		Struct t = mulExpr.getTerm().struct;
 		
 		if(te.equals(t) && te == Tab.intType) {
@@ -158,7 +158,11 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		}
 	}
     
-    public void visit(Const cnst) {
+    public void visit(CharConst cnst) {
+		cnst.struct = Tab.charType;
+	}
+    
+    public void visit(NumConst cnst) {
 		cnst.struct = Tab.intType;
 	}
     

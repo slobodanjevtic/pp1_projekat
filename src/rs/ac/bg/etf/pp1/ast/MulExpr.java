@@ -1,39 +1,23 @@
 // generated with ast extension for cup
 // version 0.8
-// 10/0/2021 17:44:0
+// 10/0/2021 23:9:50
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class MulExpr extends Expr {
+public class MulExpr extends Term {
 
-    private Expr Expr;
-    private Mulop Mulop;
     private Term Term;
+    private Mulop Mulop;
+    private Factor Factor;
 
-    public MulExpr (Expr Expr, Mulop Mulop, Term Term) {
-        this.Expr=Expr;
-        if(Expr!=null) Expr.setParent(this);
-        this.Mulop=Mulop;
-        if(Mulop!=null) Mulop.setParent(this);
+    public MulExpr (Term Term, Mulop Mulop, Factor Factor) {
         this.Term=Term;
         if(Term!=null) Term.setParent(this);
-    }
-
-    public Expr getExpr() {
-        return Expr;
-    }
-
-    public void setExpr(Expr Expr) {
-        this.Expr=Expr;
-    }
-
-    public Mulop getMulop() {
-        return Mulop;
-    }
-
-    public void setMulop(Mulop Mulop) {
         this.Mulop=Mulop;
+        if(Mulop!=null) Mulop.setParent(this);
+        this.Factor=Factor;
+        if(Factor!=null) Factor.setParent(this);
     }
 
     public Term getTerm() {
@@ -44,27 +28,43 @@ public class MulExpr extends Expr {
         this.Term=Term;
     }
 
+    public Mulop getMulop() {
+        return Mulop;
+    }
+
+    public void setMulop(Mulop Mulop) {
+        this.Mulop=Mulop;
+    }
+
+    public Factor getFactor() {
+        return Factor;
+    }
+
+    public void setFactor(Factor Factor) {
+        this.Factor=Factor;
+    }
+
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Expr!=null) Expr.accept(visitor);
-        if(Mulop!=null) Mulop.accept(visitor);
         if(Term!=null) Term.accept(visitor);
+        if(Mulop!=null) Mulop.accept(visitor);
+        if(Factor!=null) Factor.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Expr!=null) Expr.traverseTopDown(visitor);
-        if(Mulop!=null) Mulop.traverseTopDown(visitor);
         if(Term!=null) Term.traverseTopDown(visitor);
+        if(Mulop!=null) Mulop.traverseTopDown(visitor);
+        if(Factor!=null) Factor.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Expr!=null) Expr.traverseBottomUp(visitor);
-        if(Mulop!=null) Mulop.traverseBottomUp(visitor);
         if(Term!=null) Term.traverseBottomUp(visitor);
+        if(Mulop!=null) Mulop.traverseBottomUp(visitor);
+        if(Factor!=null) Factor.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -73,8 +73,8 @@ public class MulExpr extends Expr {
         buffer.append(tab);
         buffer.append("MulExpr(\n");
 
-        if(Expr!=null)
-            buffer.append(Expr.toString("  "+tab));
+        if(Term!=null)
+            buffer.append(Term.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
@@ -85,8 +85,8 @@ public class MulExpr extends Expr {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(Term!=null)
-            buffer.append(Term.toString("  "+tab));
+        if(Factor!=null)
+            buffer.append(Factor.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

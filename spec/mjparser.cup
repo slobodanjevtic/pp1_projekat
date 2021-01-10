@@ -50,6 +50,8 @@ scan with {:
 
 terminal PROG, LBRACE, RBRACE, SEMI, LPAREN, RPAREN, COMMA, EQUAL, RETURN, PLUS, MINUS, MUL, DIV, MOD, INC, DEC, PRINT, READ, VOID;
 terminal Integer NUMBER;
+terminal Boolean BOOL;
+terminal Character CHAR;
 terminal String IDENT;
 terminal IF, ELSE;
 
@@ -112,7 +114,7 @@ Unmatched ::= (UnmatchedIf) IF Expr Statement
 				
 Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI
 			|
-			(Increment) Designator:dst Incop SEMI
+			(Increment) Designator:de Incop SEMI
 			|
 			(ErrorStmt) error SEMI:sm
 			{: parser.report_error("Izvrsen oporavak do ; u liniji " + smleft, null); :}
@@ -130,18 +132,20 @@ Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI
 			
 Expr ::= (AddExpr) Expr:ex Addop Term:tr
 		|
-		(MulExpr) Expr:ex Mulop Term:tr
-		|
 		(TermExpr) Term:tr
 		;
 		
-Term ::= (Fact) Factor:fc;
+Term ::= (MulExpr) Term:tr Mulop Factor:fc
+		| 
+		(Fact) Factor:fc;
 		
 
-Factor ::= (Const) NUMBER
+Factor ::= (NumConst) NUMBER
 		|
-		(IncFact) Designator:ds Incop 
-		| 
+		(BoolConst) BOOL
+		|
+		(CharConst) CHAR
+		|
 		(Var) Designator:d
 		|
 		(FuncCall) Designator:func LPAREN ActualPars RPAREN

@@ -1,15 +1,15 @@
 // generated with ast extension for cup
 // version 0.8
-// 10/0/2021 17:44:0
+// 10/0/2021 23:9:50
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class Const extends Factor {
+public class NumConst extends Factor {
 
     private Integer N1;
 
-    public Const (Integer N1) {
+    public NumConst (Integer N1) {
         this.N1=N1;
     }
 
@@ -39,13 +39,13 @@ public class Const extends Factor {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("Const(\n");
+        buffer.append("NumConst(\n");
 
         buffer.append(" "+tab+N1);
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [Const]");
+        buffer.append(") [NumConst]");
         return buffer.toString();
     }
 }

@@ -9,11 +9,13 @@ import rs.ac.bg.etf.pp1.CounterVisitor.VarCounter;
 import rs.ac.bg.etf.pp1.ast.Add;
 import rs.ac.bg.etf.pp1.ast.AddExpr;
 import rs.ac.bg.etf.pp1.ast.Assignment;
-import rs.ac.bg.etf.pp1.ast.Const;
+import rs.ac.bg.etf.pp1.ast.CharConst;
+import rs.ac.bg.etf.pp1.ast.NumConst;
 import rs.ac.bg.etf.pp1.ast.Designator;
 import rs.ac.bg.etf.pp1.ast.FuncCall;
 import rs.ac.bg.etf.pp1.ast.Inc;
-import rs.ac.bg.etf.pp1.ast.IncFact;
+import rs.ac.bg.etf.pp1.ast.Increment;
+//import rs.ac.bg.etf.pp1.ast.IncFact;
 import rs.ac.bg.etf.pp1.ast.MethodDecl;
 import rs.ac.bg.etf.pp1.ast.MethodTypeName;
 import rs.ac.bg.etf.pp1.ast.Mul;
@@ -44,10 +46,18 @@ public class CodeGenerator extends VisitorAdaptor {
 		}
 	}
 	
-	public void visit(Const cnst) {
+	public void visit(NumConst cnst) {
 		Obj con = Tab.insert(Obj.Con, "$", cnst.struct);
 		con.setLevel(0);
 		con.setAdr(cnst.getN1());
+		
+		Code.load(con);
+	}
+	
+	public void visit(CharConst cnst) {
+		Obj con = Tab.insert(Obj.Con, "$", cnst.struct);
+		con.setLevel(0);
+		con.setAdr(cnst.getC1());
 		
 		Code.load(con);
 	}
@@ -142,10 +152,10 @@ public class CodeGenerator extends VisitorAdaptor {
 
 	}
 	
-	public void visit(IncFact incFact) {
-		//if(incFact.getIncop().getClass() == Inc.class) {
+	public void visit(Increment inc) {
+		if(inc.getIncop().getClass() == Inc.class) {
 			Code.put(Code.inc);
-		//}
+		}
 	}
 	
 	

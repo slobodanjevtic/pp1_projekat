@@ -50,6 +50,8 @@ scan with {:
 
 terminal PROG, LBRACE, RBRACE, SEMI, LPAREN, RPAREN, COMMA, EQUAL, RETURN, PLUS, MINUS, MUL, DIV, MOD, INC, DEC, PRINT, READ, VOID;
 terminal Integer NUMBER;
+terminal Boolean BOOL;
+terminal Character CHAR;
 terminal String IDENT;
 terminal IF, ELSE;
 
@@ -123,7 +125,7 @@ Unmatched ::= (UnmatchedIf) IF Expr:E1 Statement:S2 {: RESULT=new UnmatchedIf(E1
 				
 Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assignment(dest, ex); RESULT.setLine(destleft); :}
 			|
-			(Increment) Designator:dst Incop:I1 SEMI {: RESULT=new Increment(dst, I1); RESULT.setLine(dstleft); :}
+			(Increment) Designator:de Incop:I1 SEMI {: RESULT=new Increment(de, I1); RESULT.setLine(deleft); :}
 			|
 			(ErrorStmt) error SEMI:sm
 			{: parser.report_error("Izvrsen oporavak do ; u liniji " + smleft, null); :} {: RESULT=new ErrorStmt(); :}
@@ -141,18 +143,20 @@ Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assign
 			
 Expr ::= (AddExpr) Expr:ex Addop:A1 Term:tr {: RESULT=new AddExpr(ex, A1, tr); RESULT.setLine(exleft); :}
 		|
-		(MulExpr) Expr:ex Mulop:M1 Term:tr {: RESULT=new MulExpr(ex, M1, tr); RESULT.setLine(exleft); :}
-		|
 		(TermExpr) Term:tr {: RESULT=new TermExpr(tr); RESULT.setLine(trleft); :}
 		;
 		
-Term ::= (Fact) Factor:fc {: RESULT=new Fact(fc); RESULT.setLine(fcleft); :};
+Term ::= (MulExpr) Term:tr Mulop:M1 Factor:fc {: RESULT=new MulExpr(tr, M1, fc); RESULT.setLine(trleft); :}
+		| 
+		(Fact) Factor:fc {: RESULT=new Fact(fc); RESULT.setLine(fcleft); :};
 		
 
-Factor ::= (Const) NUMBER:N1 {: RESULT=new Const(N1); RESULT.setLine(N1left); :}
+Factor ::= (NumConst) NUMBER:N1 {: RESULT=new NumConst(N1); RESULT.setLine(N1left); :}
 		|
-		(IncFact) Designator:ds Incop:I1 {: RESULT=new IncFact(ds, I1); RESULT.setLine(dsleft); :} 
-		| 
+		(BoolConst) BOOL:B1 {: RESULT=new BoolConst(B1); RESULT.setLine(B1left); :}
+		|
+		(CharConst) CHAR:C1 {: RESULT=new CharConst(C1); RESULT.setLine(C1left); :}
+		|
 		(Var) Designator:d {: RESULT=new Var(d); RESULT.setLine(dleft); :}
 		|
 		(FuncCall) Designator:func LPAREN ActualPars:A1 RPAREN {: RESULT=new FuncCall(func, A1); RESULT.setLine(funcleft); :}
