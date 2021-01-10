@@ -3,15 +3,21 @@ package rs.ac.bg.etf.pp1;
 import rs.etf.pp1.mj.runtime.Code;
 import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.Obj;
+
 import rs.ac.bg.etf.pp1.CounterVisitor.FormParamCounter;
 import rs.ac.bg.etf.pp1.CounterVisitor.VarCounter;
+import rs.ac.bg.etf.pp1.ast.Add;
 import rs.ac.bg.etf.pp1.ast.AddExpr;
 import rs.ac.bg.etf.pp1.ast.Assignment;
 import rs.ac.bg.etf.pp1.ast.Const;
 import rs.ac.bg.etf.pp1.ast.Designator;
 import rs.ac.bg.etf.pp1.ast.FuncCall;
+import rs.ac.bg.etf.pp1.ast.Inc;
+import rs.ac.bg.etf.pp1.ast.IncFact;
 import rs.ac.bg.etf.pp1.ast.MethodDecl;
 import rs.ac.bg.etf.pp1.ast.MethodTypeName;
+import rs.ac.bg.etf.pp1.ast.Mul;
+import rs.ac.bg.etf.pp1.ast.Div;
 import rs.ac.bg.etf.pp1.ast.MulExpr;
 import rs.ac.bg.etf.pp1.ast.PrintStmt;
 import rs.ac.bg.etf.pp1.ast.ProcCall;
@@ -114,11 +120,32 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	public void visit(AddExpr addExpr) {
-		Code.put(Code.add);
+		if(addExpr.getAddop().getClass() == Add.class) {
+			Code.put(Code.add);			
+		}
+		else {
+			Code.put(Code.sub);
+		}
+
 	}
 	
 	public void visit(MulExpr mulExpr) {
-		Code.put(Code.mul);
+		if(mulExpr.getMulop().getClass() == Mul.class) {
+			Code.put(Code.mul);			
+		}
+		else if(mulExpr.getMulop().getClass() == Div.class) {
+			Code.put(Code.div);
+		}
+		else {
+			Code.put(Code.rem);
+		}
+
+	}
+	
+	public void visit(IncFact incFact) {
+		//if(incFact.getIncop().getClass() == Inc.class) {
+			Code.put(Code.inc);
+		//}
 	}
 	
 	

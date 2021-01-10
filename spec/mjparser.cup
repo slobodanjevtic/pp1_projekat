@@ -55,7 +55,7 @@ terminal IF, ELSE;
 
 nonterminal VarDeclList, MethodDeclList, SingleVarDecl;
 nonterminal Params, StatementList, FormalParamList, FormalParamDecl, Statement;
-nonterminal Addop, Mulop, ActualPars, ActualParsList;
+nonterminal Addop, Mulop, Incop, ActualPars, ActualParsList;
 nonterminal Matched, Unmatched;
 
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, SingleMethodDecl, MethodTypeName, Designator;
@@ -112,6 +112,8 @@ Unmatched ::= (UnmatchedIf) IF Expr Statement
 				
 Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI
 			|
+			(Increment) Designator:dst Incop SEMI
+			|
 			(ErrorStmt) error SEMI:sm
 			{: parser.report_error("Izvrsen oporavak do ; u liniji " + smleft, null); :}
 			|
@@ -133,16 +135,13 @@ Expr ::= (AddExpr) Expr:ex Addop Term:tr
 		(TermExpr) Term:tr
 		;
 		
-Term ::= (Fact) Factor:fc
-		|
-		(Inc) Factor:inc INC
-		|
-		(Dec) Factor:dec DEC
-		;
+Term ::= (Fact) Factor:fc;
 		
 
 Factor ::= (Const) NUMBER
 		|
+		(IncFact) Designator:ds Incop 
+		| 
 		(Var) Designator:d
 		|
 		(FuncCall) Designator:func LPAREN ActualPars RPAREN
@@ -170,5 +169,10 @@ Mulop ::= (Mul) MUL
 		(Div) DIV
 		|
 		(Mod) MOD
+		;
+		
+Incop ::= (Inc) INC
+		|
+		(Dec) DEC
 		;
 			

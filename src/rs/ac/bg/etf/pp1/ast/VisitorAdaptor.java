@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 10/0/2021 0:45:20
+// 10/0/2021 17:44:0
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -12,6 +12,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(Expr Expr) { }
     public void visit(FormalParamList FormalParamList) { }
     public void visit(VarDeclList VarDeclList) { }
+    public void visit(Incop Incop) { }
     public void visit(Unmatched Unmatched) { }
     public void visit(Addop Addop) { }
     public void visit(MethodDeclList MethodDeclList) { }
@@ -22,6 +23,8 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(StatementList StatementList) { }
     public void visit(Matched Matched) { }
     public void visit(ActualPars ActualPars) { }
+    public void visit(Dec Dec) { visit(); }
+    public void visit(Inc Inc) { visit(); }
     public void visit(Mod Mod) { visit(); }
     public void visit(Div Div) { visit(); }
     public void visit(Mul Mul) { visit(); }
@@ -34,9 +37,8 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(Actuals Actuals) { visit(); }
     public void visit(FuncCall FuncCall) { visit(); }
     public void visit(Var Var) { visit(); }
+    public void visit(IncFact IncFact) { visit(); }
     public void visit(Const Const) { visit(); }
-    public void visit(Dec Dec) { visit(); }
-    public void visit(Inc Inc) { visit(); }
     public void visit(Fact Fact) { visit(); }
     public void visit(TermExpr TermExpr) { visit(); }
     public void visit(MulExpr MulExpr) { visit(); }
@@ -47,6 +49,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ReturnExpr ReturnExpr) { visit(); }
     public void visit(PrintStmt PrintStmt) { visit(); }
     public void visit(ErrorStmt ErrorStmt) { visit(); }
+    public void visit(Increment Increment) { visit(); }
     public void visit(Assignment Assignment) { visit(); }
     public void visit(UnmatchedElse UnmatchedElse) { visit(); }
     public void visit(UnmatchedIf UnmatchedIf) { visit(); }

@@ -1,25 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 10/0/2021 0:45:20
+// 10/0/2021 17:44:0
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class Dec extends Term {
+public class Dec extends Incop {
 
-    private Factor Factor;
-
-    public Dec (Factor Factor) {
-        this.Factor=Factor;
-        if(Factor!=null) Factor.setParent(this);
-    }
-
-    public Factor getFactor() {
-        return Factor;
-    }
-
-    public void setFactor(Factor Factor) {
-        this.Factor=Factor;
+    public Dec () {
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +15,13 @@ public class Dec extends Term {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Factor!=null) Factor.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Factor!=null) Factor.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Factor!=null) Factor.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -44,12 +29,6 @@ public class Dec extends Term {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
         buffer.append("Dec(\n");
-
-        if(Factor!=null)
-            buffer.append(Factor.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
 
         buffer.append(tab);
         buffer.append(") [Dec]");

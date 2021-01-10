@@ -63,6 +63,7 @@ nonterminal FormalParamDecl FormalParamDecl;
 nonterminal Statement Statement;
 nonterminal Addop Addop;
 nonterminal Mulop Mulop;
+nonterminal Incop Incop;
 nonterminal ActualPars ActualPars;
 nonterminal ActualParsList ActualParsList;
 nonterminal Matched Matched;
@@ -122,6 +123,8 @@ Unmatched ::= (UnmatchedIf) IF Expr:E1 Statement:S2 {: RESULT=new UnmatchedIf(E1
 				
 Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assignment(dest, ex); RESULT.setLine(destleft); :}
 			|
+			(Increment) Designator:dst Incop:I1 SEMI {: RESULT=new Increment(dst, I1); RESULT.setLine(dstleft); :}
+			|
 			(ErrorStmt) error SEMI:sm
 			{: parser.report_error("Izvrsen oporavak do ; u liniji " + smleft, null); :} {: RESULT=new ErrorStmt(); :}
 			|
@@ -143,16 +146,13 @@ Expr ::= (AddExpr) Expr:ex Addop:A1 Term:tr {: RESULT=new AddExpr(ex, A1, tr); R
 		(TermExpr) Term:tr {: RESULT=new TermExpr(tr); RESULT.setLine(trleft); :}
 		;
 		
-Term ::= (Fact) Factor:fc {: RESULT=new Fact(fc); RESULT.setLine(fcleft); :}
-		|
-		(Inc) Factor:inc INC {: RESULT=new Inc(inc); RESULT.setLine(incleft); :}
-		|
-		(Dec) Factor:dec DEC {: RESULT=new Dec(dec); RESULT.setLine(decleft); :}
-		;
+Term ::= (Fact) Factor:fc {: RESULT=new Fact(fc); RESULT.setLine(fcleft); :};
 		
 
 Factor ::= (Const) NUMBER:N1 {: RESULT=new Const(N1); RESULT.setLine(N1left); :}
 		|
+		(IncFact) Designator:ds Incop:I1 {: RESULT=new IncFact(ds, I1); RESULT.setLine(dsleft); :} 
+		| 
 		(Var) Designator:d {: RESULT=new Var(d); RESULT.setLine(dleft); :}
 		|
 		(FuncCall) Designator:func LPAREN ActualPars:A1 RPAREN {: RESULT=new FuncCall(func, A1); RESULT.setLine(funcleft); :}
@@ -180,5 +180,10 @@ Mulop ::= (Mul) MUL {: RESULT=new Mul(); :}
 		(Div) DIV {: RESULT=new Div(); :}
 		|
 		(Mod) MOD {: RESULT=new Mod(); :}
+		;
+		
+Incop ::= (Inc) INC {: RESULT=new Inc(); :}
+		|
+		(Dec) DEC {: RESULT=new Dec(); :}
 		;
 			
