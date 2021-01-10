@@ -1,53 +1,36 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/0/2021 22:52:47
+// 10/0/2021 0:45:20
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class VarDecl implements SyntaxNode {
+public class VarDecl extends VarDeclList {
 
-    private SyntaxNode parent;
-    private int line;
-    private Type Type;
-    private String varName;
+    private VarDeclList VarDeclList;
+    private SingleVarDecl SingleVarDecl;
 
-    public VarDecl (Type Type, String varName) {
-        this.Type=Type;
-        if(Type!=null) Type.setParent(this);
-        this.varName=varName;
+    public VarDecl (VarDeclList VarDeclList, SingleVarDecl SingleVarDecl) {
+        this.VarDeclList=VarDeclList;
+        if(VarDeclList!=null) VarDeclList.setParent(this);
+        this.SingleVarDecl=SingleVarDecl;
+        if(SingleVarDecl!=null) SingleVarDecl.setParent(this);
     }
 
-    public Type getType() {
-        return Type;
+    public VarDeclList getVarDeclList() {
+        return VarDeclList;
     }
 
-    public void setType(Type Type) {
-        this.Type=Type;
+    public void setVarDeclList(VarDeclList VarDeclList) {
+        this.VarDeclList=VarDeclList;
     }
 
-    public String getVarName() {
-        return varName;
+    public SingleVarDecl getSingleVarDecl() {
+        return SingleVarDecl;
     }
 
-    public void setVarName(String varName) {
-        this.varName=varName;
-    }
-
-    public SyntaxNode getParent() {
-        return parent;
-    }
-
-    public void setParent(SyntaxNode parent) {
-        this.parent=parent;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public void setLine(int line) {
-        this.line=line;
+    public void setSingleVarDecl(SingleVarDecl SingleVarDecl) {
+        this.SingleVarDecl=SingleVarDecl;
     }
 
     public void accept(Visitor visitor) {
@@ -55,16 +38,19 @@ public class VarDecl implements SyntaxNode {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Type!=null) Type.accept(visitor);
+        if(VarDeclList!=null) VarDeclList.accept(visitor);
+        if(SingleVarDecl!=null) SingleVarDecl.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Type!=null) Type.traverseTopDown(visitor);
+        if(VarDeclList!=null) VarDeclList.traverseTopDown(visitor);
+        if(SingleVarDecl!=null) SingleVarDecl.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Type!=null) Type.traverseBottomUp(visitor);
+        if(VarDeclList!=null) VarDeclList.traverseBottomUp(visitor);
+        if(SingleVarDecl!=null) SingleVarDecl.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -73,13 +59,16 @@ public class VarDecl implements SyntaxNode {
         buffer.append(tab);
         buffer.append("VarDecl(\n");
 
-        if(Type!=null)
-            buffer.append(Type.toString("  "+tab));
+        if(VarDeclList!=null)
+            buffer.append(VarDeclList.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        buffer.append(" "+tab+varName);
+        if(SingleVarDecl!=null)
+            buffer.append(SingleVarDecl.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
         buffer.append("\n");
 
         buffer.append(tab);

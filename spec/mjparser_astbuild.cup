@@ -55,8 +55,8 @@ terminal IF, ELSE;
 
 nonterminal VarDeclList VarDeclList;
 nonterminal MethodDeclList MethodDeclList;
-nonterminal VarDecl VarDecl;
-nonterminal FormPars FormPars;
+nonterminal SingleVarDecl SingleVarDecl;
+nonterminal Params Params;
 nonterminal StatementList StatementList;
 nonterminal FormalParamList FormalParamList;
 nonterminal FormalParamDecl FormalParamDecl;
@@ -68,40 +68,42 @@ nonterminal ActualParsList ActualParsList;
 nonterminal Matched Matched;
 nonterminal Unmatched Unmatched;
 
-nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, MethodDecl, MethodTypeName, Designator;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, SingleMethodDecl, MethodTypeName, Designator;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Expr, Term, Factor;
 
-Program ::= (Program) PROG ProgName:p VarDeclList:V1 LBRACE MethodDeclList:M2 RBRACE {: RESULT=new Program(p, V1, M2); RESULT.setLine(pleft); :};
+Program ::= (Program) PROG ProgName:progName VarDeclList:V1 LBRACE MethodDeclList:M2 RBRACE {: RESULT=new Program(progName, V1, M2); RESULT.setLine(progNameleft); :};
 
 ProgName ::= (ProgName) IDENT:progName {: RESULT=new ProgName(progName); RESULT.setLine(progNameleft); :};
 
-VarDeclList ::= (VarDeclaration) VarDeclList:V1 VarDecl:V2 {: RESULT=new VarDeclaration(V1, V2); RESULT.setLine(V1left); :}
+VarDeclList ::= (VarDecl) VarDeclList:V1 SingleVarDecl:S2 {: RESULT=new VarDecl(V1, S2); RESULT.setLine(V1left); :}
 			| 
 			(NoVarDecl) {: RESULT=new NoVarDecl(); :} /* epsilon */
 			;
 			
-VarDecl ::= (VarDecl) Type:varType IDENT:varName SEMI {: RESULT=new VarDecl(varType, varName); RESULT.setLine(varTypeleft); :};
+SingleVarDecl ::= (SingleVarDecl) Type:varType IDENT:varName SEMI {: RESULT=new SingleVarDecl(varType, varName); RESULT.setLine(varTypeleft); :};
 
 Type ::= (Type) IDENT:typeName {: RESULT=new Type(typeName); RESULT.setLine(typeNameleft); :};
 
-MethodDeclList ::= (MethodDeclaration) MethodDeclList:M1 MethodDecl:M2 {: RESULT=new MethodDeclaration(M1, M2); RESULT.setLine(M1left); :}
+MethodDeclList ::= (MethodDecl) MethodDeclList:M1 SingleMethodDecl:S2 {: RESULT=new MethodDecl(M1, S2); RESULT.setLine(M1left); :}
 				|
 				(NoMethodDecl) {: RESULT=new NoMethodDecl(); :}/* epsilon */
 				;
 				
-MethodDecl ::= (MethodDecl) MethodTypeName:M1 LPAREN FormPars:F2 RPAREN VarDeclList:V3 LBRACE StatementList:S4 RBRACE {: RESULT=new MethodDecl(M1, F2, V3, S4); RESULT.setLine(M1left); :};
+SingleMethodDecl ::= (SingleMethodDecl) MethodTypeName:M1 LPAREN Params:P2 RPAREN VarDeclList:V3 LBRACE StatementList:S4 RBRACE {: RESULT=new SingleMethodDecl(M1, P2, V3, S4); RESULT.setLine(M1left); :};
 
-MethodTypeName ::= (MethodTypeName) Type:retType IDENT:methName {: RESULT=new MethodTypeName(retType, methName); RESULT.setLine(retTypeleft); :};
+MethodTypeName ::= (MethodTypeName) Type:retTypeName IDENT:methName {: RESULT=new MethodTypeName(retTypeName, methName); RESULT.setLine(retTypeNameleft); :};
 
-FormPars ::= (FormParams) FormalParamList:F1 {: RESULT=new FormParams(F1); RESULT.setLine(F1left); :}
+Params ::= (FormParams) FormalParamList:F1 {: RESULT=new FormParams(F1); RESULT.setLine(F1left); :}
 			|
 			(NoFormParam) {: RESULT=new NoFormParam(); :} /* epsilon */
 			;
 			
-FormalParamList ::= (FormalParamDecls) FormalParamList:F1 COMMA FormalParamDecl:F2 {: RESULT=new FormalParamDecls(F1, F2); RESULT.setLine(F1left); :}
+FormalParamList ::= (MultipleFormalParamDecl) FormalParamList:F1 COMMA FormalParamDecl:F2 {: RESULT=new MultipleFormalParamDecl(F1, F2); RESULT.setLine(F1left); :}
 				|
 				(SingleFormalParamDecl) FormalParamDecl:F1 {: RESULT=new SingleFormalParamDecl(F1); RESULT.setLine(F1left); :}
 				;
+				
+FormalParamDecl ::= (FormalParamDecl) Type:T1 IDENT:paramName {: RESULT=new FormalParamDecl(T1, paramName); RESULT.setLine(T1left); :};
 				
 StatementList ::= (Statements) StatementList:S1 Statement:S2 {: RESULT=new Statements(S1, S2); RESULT.setLine(S1left); :}
 				|
@@ -118,10 +120,10 @@ Unmatched ::= (UnmatchedIf) IF Expr:E1 Statement:S2 {: RESULT=new UnmatchedIf(E1
 			(UnmatchedElse) IF Expr:E1 Matched:M2 ELSE Unmatched:U3 {: RESULT=new UnmatchedElse(E1, M2, U3); RESULT.setLine(E1left); :}
 			;
 				
-Matched ::= (Assignment) Designator:dest EQUAL Expr:e SEMI {: RESULT=new Assignment(dest, e); RESULT.setLine(destleft); :}
+Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assignment(dest, ex); RESULT.setLine(destleft); :}
 			|
-			(ErrorStmt) error SEMI:l
-			{: parser.report_error("Izvrsen oporavak do ; u liniji " + lleft, null); :} {: RESULT=new ErrorStmt(); :}
+			(ErrorStmt) error SEMI:sm
+			{: parser.report_error("Izvrsen oporavak do ; u liniji " + smleft, null); :} {: RESULT=new ErrorStmt(); :}
 			|
 			(PrintStmt) PRINT LPAREN Expr:E1 RPAREN SEMI {: RESULT=new PrintStmt(E1); RESULT.setLine(E1left); :}
 			|
@@ -134,14 +136,20 @@ Matched ::= (Assignment) Designator:dest EQUAL Expr:e SEMI {: RESULT=new Assignm
 			(ProcCall) Designator:func LPAREN ActualPars:A1 RPAREN SEMI {: RESULT=new ProcCall(func, A1); RESULT.setLine(funcleft); :}
 			;
 			
-Expr ::= (AddExpr) Expr:te Addop:A1 Term:r {: RESULT=new AddExpr(te, A1, r); RESULT.setLine(teleft); :}
+Expr ::= (AddExpr) Expr:ex Addop:A1 Term:tr {: RESULT=new AddExpr(ex, A1, tr); RESULT.setLine(exleft); :}
 		|
-		(MulExpr) Expr:me Mulop:M1 Term:tr {: RESULT=new MulExpr(me, M1, tr); RESULT.setLine(meleft); :}
+		(MulExpr) Expr:ex Mulop:M1 Term:tr {: RESULT=new MulExpr(ex, M1, tr); RESULT.setLine(exleft); :}
 		|
-		(TermExpr) Term:t {: RESULT=new TermExpr(t); RESULT.setLine(tleft); :}
+		(TermExpr) Term:tr {: RESULT=new TermExpr(tr); RESULT.setLine(trleft); :}
 		;
 		
-Term ::= (Term) Factor:t {: RESULT=new Term(t); RESULT.setLine(tleft); :};
+Term ::= (Fact) Factor:fc {: RESULT=new Fact(fc); RESULT.setLine(fcleft); :}
+		|
+		(Inc) Factor:inc INC {: RESULT=new Inc(inc); RESULT.setLine(incleft); :}
+		|
+		(Dec) Factor:dec DEC {: RESULT=new Dec(dec); RESULT.setLine(decleft); :}
+		;
+		
 
 Factor ::= (Const) NUMBER:N1 {: RESULT=new Const(N1); RESULT.setLine(N1left); :}
 		|

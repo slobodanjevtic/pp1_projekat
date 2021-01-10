@@ -12,6 +12,7 @@ import rs.ac.bg.etf.pp1.ast.Designator;
 import rs.ac.bg.etf.pp1.ast.FuncCall;
 import rs.ac.bg.etf.pp1.ast.MethodDecl;
 import rs.ac.bg.etf.pp1.ast.MethodTypeName;
+import rs.ac.bg.etf.pp1.ast.MulExpr;
 import rs.ac.bg.etf.pp1.ast.PrintStmt;
 import rs.ac.bg.etf.pp1.ast.ProcCall;
 import rs.ac.bg.etf.pp1.ast.ReturnExpr;
@@ -115,6 +116,11 @@ public class CodeGenerator extends VisitorAdaptor {
 	public void visit(AddExpr addExpr) {
 		Code.put(Code.add);
 	}
+	
+	public void visit(MulExpr mulExpr) {
+		Code.put(Code.mul);
+	}
+	
 	
 }
 

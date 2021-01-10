@@ -1,16 +1,16 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/0/2021 22:52:47
+// 10/0/2021 0:45:20
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class FormalParamDecls extends FormalParamList {
+public class MultipleFormalParamDecl extends FormalParamList {
 
     private FormalParamList FormalParamList;
     private FormalParamDecl FormalParamDecl;
 
-    public FormalParamDecls (FormalParamList FormalParamList, FormalParamDecl FormalParamDecl) {
+    public MultipleFormalParamDecl (FormalParamList FormalParamList, FormalParamDecl FormalParamDecl) {
         this.FormalParamList=FormalParamList;
         if(FormalParamList!=null) FormalParamList.setParent(this);
         this.FormalParamDecl=FormalParamDecl;
@@ -57,7 +57,7 @@ public class FormalParamDecls extends FormalParamList {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("FormalParamDecls(\n");
+        buffer.append("MultipleFormalParamDecl(\n");
 
         if(FormalParamList!=null)
             buffer.append(FormalParamList.toString("  "+tab));
@@ -72,7 +72,7 @@ public class FormalParamDecls extends FormalParamList {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [FormalParamDecls]");
+        buffer.append(") [MultipleFormalParamDecl]");
         return buffer.toString();
     }
 }

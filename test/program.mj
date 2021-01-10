@@ -1,5 +1,6 @@
 program MJProgram
 	int x; int y;
+
 {
 
 	int k() int c; {
@@ -8,19 +9,23 @@ program MJProgram
 		print(0);
 		return c + 2;
 	}
+	
+	int mul(int a, int b) char ch; {
+		return a * b;
+	}
 
 	int main() {
 		x = 3;
 		
 		print(1);
 		
-		y = 4 + 9 + k();
-		
-		print(x);
-
-		k();
+		y = 4 + k() + 9;
 		
 		print(y);
+
+		print(k());
+		
+		print(mul(k(), x));
 		
 		return 0;
 	}

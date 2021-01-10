@@ -53,45 +53,47 @@ terminal Integer NUMBER;
 terminal String IDENT;
 terminal IF, ELSE;
 
-nonterminal VarDeclList, MethodDeclList, VarDecl;
-nonterminal FormPars, StatementList, FormalParamList, FormalParamDecl, Statement;
+nonterminal VarDeclList, MethodDeclList, SingleVarDecl;
+nonterminal Params, StatementList, FormalParamList, FormalParamDecl, Statement;
 nonterminal Addop, Mulop, ActualPars, ActualParsList;
 nonterminal Matched, Unmatched;
 
-nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, MethodDecl, MethodTypeName, Designator;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, SingleMethodDecl, MethodTypeName, Designator;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Expr, Term, Factor;
 
-Program ::= (Program) PROG ProgName:p VarDeclList LBRACE MethodDeclList RBRACE;
+Program ::= (Program) PROG ProgName:progName VarDeclList LBRACE MethodDeclList RBRACE;
 
 ProgName ::= (ProgName) IDENT:progName;
 
-VarDeclList ::= (VarDeclaration) VarDeclList VarDecl
+VarDeclList ::= (VarDecl) VarDeclList SingleVarDecl
 			| 
 			(NoVarDecl) /* epsilon */
 			;
 			
-VarDecl ::= (VarDecl) Type:varType IDENT:varName SEMI;
+SingleVarDecl ::= (SingleVarDecl) Type:varType IDENT:varName SEMI;
 
 Type ::= (Type) IDENT:typeName;
 
-MethodDeclList ::= (MethodDeclaration) MethodDeclList MethodDecl
+MethodDeclList ::= (MethodDecl) MethodDeclList SingleMethodDecl
 				|
 				(NoMethodDecl)/* epsilon */
 				;
 				
-MethodDecl ::= (MethodDecl) MethodTypeName LPAREN FormPars RPAREN VarDeclList LBRACE StatementList RBRACE;
+SingleMethodDecl ::= (SingleMethodDecl) MethodTypeName LPAREN Params RPAREN VarDeclList LBRACE StatementList RBRACE;
 
-MethodTypeName ::= (MethodTypeName) Type:retType IDENT:methName;
+MethodTypeName ::= (MethodTypeName) Type:retTypeName IDENT:methName;
 
-FormPars ::= (FormParams) FormalParamList
+Params ::= (FormParams) FormalParamList
 			|
 			(NoFormParam) /* epsilon */
 			;
 			
-FormalParamList ::= (FormalParamDecls) FormalParamList COMMA FormalParamDecl
+FormalParamList ::= (MultipleFormalParamDecl) FormalParamList COMMA FormalParamDecl
 				|
 				(SingleFormalParamDecl) FormalParamDecl
 				;
+				
+FormalParamDecl ::= (FormalParamDecl) Type IDENT:paramName;
 				
 StatementList ::= (Statements) StatementList Statement
 				|
@@ -108,10 +110,10 @@ Unmatched ::= (UnmatchedIf) IF Expr Statement
 			(UnmatchedElse) IF Expr Matched ELSE Unmatched
 			;
 				
-Matched ::= (Assignment) Designator:dest EQUAL Expr:e SEMI
+Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI
 			|
-			(ErrorStmt) error SEMI:l
-			{: parser.report_error("Izvrsen oporavak do ; u liniji " + lleft, null); :}
+			(ErrorStmt) error SEMI:sm
+			{: parser.report_error("Izvrsen oporavak do ; u liniji " + smleft, null); :}
 			|
 			(PrintStmt) PRINT LPAREN Expr RPAREN SEMI
 			|
@@ -124,14 +126,20 @@ Matched ::= (Assignment) Designator:dest EQUAL Expr:e SEMI
 			(ProcCall) Designator:func LPAREN ActualPars RPAREN SEMI
 			;
 			
-Expr ::= (AddExpr) Expr:te Addop Term:r
+Expr ::= (AddExpr) Expr:ex Addop Term:tr
 		|
-		(MulExpr) Expr:me Mulop Term:tr
+		(MulExpr) Expr:ex Mulop Term:tr
 		|
-		(TermExpr) Term:t
+		(TermExpr) Term:tr
 		;
 		
-Term ::= (Term) Factor:t;
+Term ::= (Fact) Factor:fc
+		|
+		(Inc) Factor:inc INC
+		|
+		(Dec) Factor:dec DEC
+		;
+		
 
 Factor ::= (Const) NUMBER
 		|

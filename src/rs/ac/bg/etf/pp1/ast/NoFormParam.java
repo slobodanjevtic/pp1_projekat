@@ -1,11 +1,11 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/0/2021 22:52:47
+// 10/0/2021 0:45:20
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class NoFormParam extends FormPars {
+public class NoFormParam extends Params {
 
     public NoFormParam () {
     }

@@ -1,78 +1,36 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/0/2021 22:52:47
+// 10/0/2021 0:45:20
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class MethodDecl implements SyntaxNode {
+public class MethodDecl extends MethodDeclList {
 
-    private SyntaxNode parent;
-    private int line;
-    public rs.etf.pp1.symboltable.concepts.Obj obj = null;
+    private MethodDeclList MethodDeclList;
+    private SingleMethodDecl SingleMethodDecl;
 
-    private MethodTypeName MethodTypeName;
-    private FormPars FormPars;
-    private VarDeclList VarDeclList;
-    private StatementList StatementList;
-
-    public MethodDecl (MethodTypeName MethodTypeName, FormPars FormPars, VarDeclList VarDeclList, StatementList StatementList) {
-        this.MethodTypeName=MethodTypeName;
-        if(MethodTypeName!=null) MethodTypeName.setParent(this);
-        this.FormPars=FormPars;
-        if(FormPars!=null) FormPars.setParent(this);
-        this.VarDeclList=VarDeclList;
-        if(VarDeclList!=null) VarDeclList.setParent(this);
-        this.StatementList=StatementList;
-        if(StatementList!=null) StatementList.setParent(this);
+    public MethodDecl (MethodDeclList MethodDeclList, SingleMethodDecl SingleMethodDecl) {
+        this.MethodDeclList=MethodDeclList;
+        if(MethodDeclList!=null) MethodDeclList.setParent(this);
+        this.SingleMethodDecl=SingleMethodDecl;
+        if(SingleMethodDecl!=null) SingleMethodDecl.setParent(this);
     }
 
-    public MethodTypeName getMethodTypeName() {
-        return MethodTypeName;
+    public MethodDeclList getMethodDeclList() {
+        return MethodDeclList;
     }
 
-    public void setMethodTypeName(MethodTypeName MethodTypeName) {
-        this.MethodTypeName=MethodTypeName;
+    public void setMethodDeclList(MethodDeclList MethodDeclList) {
+        this.MethodDeclList=MethodDeclList;
     }
 
-    public FormPars getFormPars() {
-        return FormPars;
+    public SingleMethodDecl getSingleMethodDecl() {
+        return SingleMethodDecl;
     }
 
-    public void setFormPars(FormPars FormPars) {
-        this.FormPars=FormPars;
-    }
-
-    public VarDeclList getVarDeclList() {
-        return VarDeclList;
-    }
-
-    public void setVarDeclList(VarDeclList VarDeclList) {
-        this.VarDeclList=VarDeclList;
-    }
-
-    public StatementList getStatementList() {
-        return StatementList;
-    }
-
-    public void setStatementList(StatementList StatementList) {
-        this.StatementList=StatementList;
-    }
-
-    public SyntaxNode getParent() {
-        return parent;
-    }
-
-    public void setParent(SyntaxNode parent) {
-        this.parent=parent;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public void setLine(int line) {
-        this.line=line;
+    public void setSingleMethodDecl(SingleMethodDecl SingleMethodDecl) {
+        this.SingleMethodDecl=SingleMethodDecl;
     }
 
     public void accept(Visitor visitor) {
@@ -80,25 +38,19 @@ public class MethodDecl implements SyntaxNode {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(MethodTypeName!=null) MethodTypeName.accept(visitor);
-        if(FormPars!=null) FormPars.accept(visitor);
-        if(VarDeclList!=null) VarDeclList.accept(visitor);
-        if(StatementList!=null) StatementList.accept(visitor);
+        if(MethodDeclList!=null) MethodDeclList.accept(visitor);
+        if(SingleMethodDecl!=null) SingleMethodDecl.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(MethodTypeName!=null) MethodTypeName.traverseTopDown(visitor);
-        if(FormPars!=null) FormPars.traverseTopDown(visitor);
-        if(VarDeclList!=null) VarDeclList.traverseTopDown(visitor);
-        if(StatementList!=null) StatementList.traverseTopDown(visitor);
+        if(MethodDeclList!=null) MethodDeclList.traverseTopDown(visitor);
+        if(SingleMethodDecl!=null) SingleMethodDecl.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(MethodTypeName!=null) MethodTypeName.traverseBottomUp(visitor);
-        if(FormPars!=null) FormPars.traverseBottomUp(visitor);
-        if(VarDeclList!=null) VarDeclList.traverseBottomUp(visitor);
-        if(StatementList!=null) StatementList.traverseBottomUp(visitor);
+        if(MethodDeclList!=null) MethodDeclList.traverseBottomUp(visitor);
+        if(SingleMethodDecl!=null) SingleMethodDecl.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -107,26 +59,14 @@ public class MethodDecl implements SyntaxNode {
         buffer.append(tab);
         buffer.append("MethodDecl(\n");
 
-        if(MethodTypeName!=null)
-            buffer.append(MethodTypeName.toString("  "+tab));
+        if(MethodDeclList!=null)
+            buffer.append(MethodDeclList.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(FormPars!=null)
-            buffer.append(FormPars.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        if(VarDeclList!=null)
-            buffer.append(VarDeclList.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        if(StatementList!=null)
-            buffer.append(StatementList.toString("  "+tab));
+        if(SingleMethodDecl!=null)
+            buffer.append(SingleMethodDecl.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

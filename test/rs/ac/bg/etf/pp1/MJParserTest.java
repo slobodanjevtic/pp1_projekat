@@ -48,7 +48,7 @@ public class MJParserTest {
 			log.info("===================================");
 
 			// ispis prepoznatih programskih konstrukcija
-			SemanticPass sp = new SemanticPass();
+			SemanticAnalyzer sp = new SemanticAnalyzer();
 			prog.traverseBottomUp(sp); 
 	      
 			log.info(" Print count calls = " + sp.printCallCount);

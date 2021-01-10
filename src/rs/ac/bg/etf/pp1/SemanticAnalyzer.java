@@ -6,7 +6,7 @@ import rs.ac.bg.etf.pp1.ast.*;
 import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.*; 
 
-public class SemanticPass extends VisitorAdaptor {
+public class SemanticAnalyzer extends VisitorAdaptor {
 	int printCallCount = 0;
 	int varDeclCount = 0;
 	Obj currentMethod = null;
@@ -33,7 +33,7 @@ public class SemanticPass extends VisitorAdaptor {
 		log.info(msg.toString());
 	}
 	
-	public void visit(VarDecl varDecl){
+	public void visit(SingleVarDecl varDecl){
 		varDeclCount++;
 		report_info("Deklarisana promenljiva " + varDecl.getVarName(), varDecl);
 		Obj varNode = Tab.insert(Obj.Var, varDecl.getVarName(), varDecl.getType().struct);
@@ -93,6 +93,11 @@ public class SemanticPass extends VisitorAdaptor {
 		currentMethod = null;
 	}
     
+    public void visit(FormalParamDecl formalParamDecl) {
+		report_info("Deklarisana promenljiva " + formalParamDecl.getParamName(), formalParamDecl);
+		Obj varNode = Tab.insert(Obj.Var, formalParamDecl.getParamName(), formalParamDecl.getType().struct);
+	}
+    
     public void visit(Designator designator) {
 		Obj obj = Tab.find(designator.getName());
 		if(obj == Tab.noObj) {
@@ -119,8 +124,8 @@ public class SemanticPass extends VisitorAdaptor {
 		}
     }
     
-    public void visit(Term term) {
-		term.struct = term.getFactor().struct;
+    public void visit(Fact fact) {
+    	fact.struct = fact.getFactor().struct;
 	}
     
     public void visit(TermExpr termExpr) {
