@@ -2,11 +2,16 @@ package rs.ac.bg.etf.pp1;
 
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
 import rs.ac.bg.etf.pp1.ast.*;
 import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.*; 
 
 public class SemanticAnalyzer extends VisitorAdaptor {
+	ArrayList<Integer> callFuncArgs = new ArrayList<Integer>();
 	int printCallCount = 0;
 	int varDeclCount = 0;
 	Obj currentMethod = null;
@@ -96,6 +101,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     public void visit(FormalParamDecl formalParamDecl) {
 		report_info("Deklarisana promenljiva " + formalParamDecl.getParamName(), formalParamDecl);
 		Obj varNode = Tab.insert(Obj.Var, formalParamDecl.getParamName(), formalParamDecl.getType().struct);
+		//currentMethod.setLevel(currentMethod.getLevel() + 1);
 	}
     
     public void visit(Designator designator) {
@@ -108,21 +114,76 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     
     public void visit(FuncCall funcCall) {
 		Obj func = funcCall.getDesignator().obj;
+		
 		if(Obj.Meth == func.getKind()) {
 			if(Tab.noType == func.getType()) {
 				report_error("Semanticka greska " + func.getName() + " ne moze se koristiti u izrazima jer nema povratnu vrednost ", funcCall);
 			}
+			else if(func.getLocalSymbols().size() != callFuncArgs.size()) {
+				report_error("Semanticka greska " + func.getName() + " pogresan broj argumenata ", funcCall);
+				funcCall.struct = func.getType();	
+			}
+			else if(checkArgsType(func.getLocalSymbols())){
+				report_error("Semanticka greska " + func.getName() + " pogresan tip argumenta", funcCall);
+				funcCall.struct = func.getType();
+			}
 			else {
-				report_info("Pronadjen poziv funkcije " + func.getName() + " : na liniji " + funcCall.getLine(), null);
 				funcCall.struct = func.getType();				
 			}
-
 		}
 		else {
 			report_error("Greska na liniji " + funcCall.getLine() + " : ime " + func.getName() + " nije funkcija! ", null);
 			funcCall.struct = Tab.noType;
 		}
+		callFuncArgs.clear();
     }
+    
+    public void visit(ProcCall funcCall) {
+		Obj func = funcCall.getDesignator().obj;
+		
+		if(Obj.Meth == func.getKind()) {
+			if(Tab.noType == func.getType()) {
+				report_error("Semanticka greska " + func.getName() + " ne moze se koristiti u izrazima jer nema povratnu vrednost ", funcCall);
+			}
+			else if(func.getLocalSymbols().size() != callFuncArgs.size()) {
+				report_error("Semanticka greska " + func.getName() + " pogresan broj argumenata ", funcCall);
+				
+				funcCall.struct = func.getType();	
+			}
+			else if(checkArgsType(func.getLocalSymbols())){
+				report_error("Semanticka greska " + func.getName() + " pogresan tip argumenta", funcCall);
+				funcCall.struct = func.getType();
+			}
+			else {
+				funcCall.struct = func.getType();				
+			}
+		}
+		else {
+			report_error("Greska na liniji " + funcCall.getLine() + " : ime " + func.getName() + " nije funkcija! ", null);
+			funcCall.struct = Tab.noType;
+		}
+		callFuncArgs.clear();
+	}
+    
+    private boolean checkArgsType(Collection<Obj> actualArgs) {
+    	Iterator<Obj> iterActual = actualArgs.iterator();
+    	Iterator<Integer> iterCall = callFuncArgs.iterator();
+    	
+    	while(iterActual.hasNext() && iterCall.hasNext()) {
+			if (!(iterActual.next().getKind() == iterCall.next()))
+				return true;
+    	}
+    	
+    	return false;
+    }
+    
+    public void visit(SingleActualParam singleActualParam) {
+    	callFuncArgs.add(singleActualParam.getExpr().struct.getKind());
+	}
+    
+    public void visit(NoActuals actuals) {
+    	callFuncArgs.clear();
+	}
     
     public void visit(Fact fact) {
     	fact.struct = fact.getFactor().struct;
@@ -132,8 +193,15 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		termExpr.struct = termExpr.getTerm().struct;
 	}
     
+    public void visit(MinusTermExpr minusTermExpr) {
+		minusTermExpr.struct = minusTermExpr.getTerm().struct;
+	}
+    
     public void visit(AddExpr addExpr) {
 		Struct te = addExpr.getExpr().struct;
+		if(te == null) {
+			
+		}
 		Struct t = addExpr.getTerm().struct;
 		
 		if(te.equals(t) && te == Tab.intType) {
@@ -143,6 +211,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			report_error("Greska na liniji " + addExpr.getLine() + " : nekompatibilni tipovi u izrazu ", null);
 			addExpr.struct = Tab.noType;
 		}
+		
 	}
     
     public void visit(MulExpr mulExpr) {
@@ -156,6 +225,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			report_error("Greska na liniji " + mulExpr.getLine() + " : nekompatibilni tipovi u izrazu. ", null);
 			mulExpr.struct = Tab.noType;
 		}
+	}
+    
+    public void visit(ParenExpr parenExpr) {
+    	parenExpr.struct = parenExpr.getExpr().struct;
 	}
     
     public void visit(CharConst cnst) {

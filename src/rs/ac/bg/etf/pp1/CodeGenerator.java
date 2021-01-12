@@ -15,9 +15,9 @@ import rs.ac.bg.etf.pp1.ast.Designator;
 import rs.ac.bg.etf.pp1.ast.FuncCall;
 import rs.ac.bg.etf.pp1.ast.Inc;
 import rs.ac.bg.etf.pp1.ast.Increment;
-//import rs.ac.bg.etf.pp1.ast.IncFact;
 import rs.ac.bg.etf.pp1.ast.MethodDecl;
 import rs.ac.bg.etf.pp1.ast.MethodTypeName;
+import rs.ac.bg.etf.pp1.ast.MinusTermExpr;
 import rs.ac.bg.etf.pp1.ast.Mul;
 import rs.ac.bg.etf.pp1.ast.Div;
 import rs.ac.bg.etf.pp1.ast.MulExpr;
@@ -139,6 +139,11 @@ public class CodeGenerator extends VisitorAdaptor {
 
 	}
 	
+    public void visit(MinusTermExpr minusTermExpr) {
+		Code.put(Code.neg);
+	}
+    
+	
 	public void visit(MulExpr mulExpr) {
 		if(mulExpr.getMulop().getClass() == Mul.class) {
 			Code.put(Code.mul);			
@@ -153,9 +158,16 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	public void visit(Increment inc) {
+		Code.load(inc.getDesignator().obj);
 		if(inc.getIncop().getClass() == Inc.class) {
-			Code.put(Code.inc);
+			Code.put(Code.const_1);
 		}
+		else {
+			Code.put(Code.const_m1);
+		}
+		Code.put(Code.add);
+		Code.store(inc.getDesignator().obj);
+
 	}
 	
 	

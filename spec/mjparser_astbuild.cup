@@ -48,7 +48,8 @@ scan with {:
 	return s;
 :}
 
-terminal PROG, LBRACE, RBRACE, SEMI, LPAREN, RPAREN, COMMA, EQUAL, RETURN, PLUS, MINUS, MUL, DIV, MOD, INC, DEC, PRINT, READ, VOID;
+terminal PROG, LBRACE, RBRACE, SEMI, LPAREN, RPAREN, COMMA, PRINT, READ, VOID;
+terminal EQUAL, RETURN, PLUS, MINUS, MUL, DIV, MOD, INC, DEC, OR, AND, EQ, NE, LT, LE, GT, GE;
 terminal Integer NUMBER;
 terminal Boolean BOOL;
 terminal Character CHAR;
@@ -66,13 +67,13 @@ nonterminal Statement Statement;
 nonterminal Addop Addop;
 nonterminal Mulop Mulop;
 nonterminal Incop Incop;
+nonterminal Relop Relop;
 nonterminal ActualPars ActualPars;
 nonterminal ActualParsList ActualParsList;
-nonterminal Matched Matched;
 nonterminal Unmatched Unmatched;
 
-nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, SingleMethodDecl, MethodTypeName, Designator;
-nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, Expr, Term, Factor;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, SingleMethodDecl, MethodTypeName, Designator, SingleActualParam;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Matched, Type, Expr, Term, Factor, CondExpr, CondTerm, CondFact;
 
 Program ::= (Program) PROG ProgName:progName VarDeclList:V1 LBRACE MethodDeclList:M2 RBRACE {: RESULT=new Program(progName, V1, M2); RESULT.setLine(progNameleft); :};
 
@@ -118,9 +119,9 @@ Statement ::= (MatchedStmt) Matched:M1 {: RESULT=new MatchedStmt(M1); RESULT.set
 			(UnmatchedStmt) Unmatched:U1 {: RESULT=new UnmatchedStmt(U1); RESULT.setLine(U1left); :}
 			;
 		
-Unmatched ::= (UnmatchedIf) IF Expr:E1 Statement:S2 {: RESULT=new UnmatchedIf(E1, S2); RESULT.setLine(E1left); :}
+Unmatched ::= (UnmatchedIf) IF LPAREN CondExpr:C1 RPAREN Statement:S2 {: RESULT=new UnmatchedIf(C1, S2); RESULT.setLine(C1left); :}
 			|
-			(UnmatchedElse) IF Expr:E1 Matched:M2 ELSE Unmatched:U3 {: RESULT=new UnmatchedElse(E1, M2, U3); RESULT.setLine(E1left); :}
+			(UnmatchedElse) IF LPAREN CondExpr:C1 RPAREN Matched:M2 ELSE Unmatched:U3 {: RESULT=new UnmatchedElse(C1, M2, U3); RESULT.setLine(C1left); :}
 			;
 				
 Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assignment(dest, ex); RESULT.setLine(destleft); :}
@@ -136,19 +137,22 @@ Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assign
 			|
 			(ReturnNoExpr) RETURN SEMI {: RESULT=new ReturnNoExpr(); :}
 			|
-			(MatchedStatement) IF Expr:E1 Matched:M2 ELSE Matched:M3 {: RESULT=new MatchedStatement(E1, M2, M3); RESULT.setLine(E1left); :}
+			(MatchedStatement) IF LPAREN CondExpr:C1 RPAREN Matched:M2 ELSE Matched:M3 {: RESULT=new MatchedStatement(C1, M2, M3); RESULT.setLine(C1left); :}
 			|
 			(ProcCall) Designator:func LPAREN ActualPars:A1 RPAREN SEMI {: RESULT=new ProcCall(func, A1); RESULT.setLine(funcleft); :}
 			;
 			
 Expr ::= (AddExpr) Expr:ex Addop:A1 Term:tr {: RESULT=new AddExpr(ex, A1, tr); RESULT.setLine(exleft); :}
 		|
+		(MinusTermExpr) MINUS Term:tr {: RESULT=new MinusTermExpr(tr); RESULT.setLine(trleft); :}
+		|
 		(TermExpr) Term:tr {: RESULT=new TermExpr(tr); RESULT.setLine(trleft); :}
 		;
 		
 Term ::= (MulExpr) Term:tr Mulop:M1 Factor:fc {: RESULT=new MulExpr(tr, M1, fc); RESULT.setLine(trleft); :}
 		| 
-		(Fact) Factor:fc {: RESULT=new Fact(fc); RESULT.setLine(fcleft); :};
+		(Fact) Factor:fc {: RESULT=new Fact(fc); RESULT.setLine(fcleft); :}
+		;
 		
 
 Factor ::= (NumConst) NUMBER:N1 {: RESULT=new NumConst(N1); RESULT.setLine(N1left); :}
@@ -160,18 +164,37 @@ Factor ::= (NumConst) NUMBER:N1 {: RESULT=new NumConst(N1); RESULT.setLine(N1lef
 		(Var) Designator:d {: RESULT=new Var(d); RESULT.setLine(dleft); :}
 		|
 		(FuncCall) Designator:func LPAREN ActualPars:A1 RPAREN {: RESULT=new FuncCall(func, A1); RESULT.setLine(funcleft); :}
+		|
+		(ParenExpr) LPAREN Expr:ex RPAREN {: RESULT=new ParenExpr(ex); RESULT.setLine(exleft); :}
 		;
+		
+CondExpr ::= (OrCondExpr) CondExpr:ce OR CondTerm:ct {: RESULT=new OrCondExpr(ce, ct); RESULT.setLine(celeft); :}
+			|
+			(SingleOrCondExpr) CondTerm:ct {: RESULT=new SingleOrCondExpr(ct); RESULT.setLine(ctleft); :}
+			;
+			
+CondTerm ::= (AndCondExpr) CondTerm:ct AND CondFact:cf {: RESULT=new AndCondExpr(ct, cf); RESULT.setLine(ctleft); :}
+			|
+			(SingleAndCondExpr) CondFact:cf {: RESULT=new SingleAndCondExpr(cf); RESULT.setLine(cfleft); :}
+			;
+			
+CondFact ::= (RelCondFact) Expr:ex1 Relop:R1 Expr:ex2 {: RESULT=new RelCondFact(ex1, R1, ex2); RESULT.setLine(ex1left); :}
+			|
+			(SingleRelCondFact) Expr:ex {: RESULT=new SingleRelCondFact(ex); RESULT.setLine(exleft); :}
+			;
 		
 ActualPars ::= (Actuals) ActualParsList:A1 {: RESULT=new Actuals(A1); RESULT.setLine(A1left); :}
 			|
 			(NoActuals) {: RESULT=new NoActuals(); :} /* epsilon */
 			;
 			
-ActualParsList ::= (ActualParams) ActualParsList:A1 COMMA Expr:E2 {: RESULT=new ActualParams(A1, E2); RESULT.setLine(A1left); :}
+ActualParsList ::= (ActualParams) ActualParsList:A1 COMMA SingleActualParam:S2 {: RESULT=new ActualParams(A1, S2); RESULT.setLine(A1left); :}
 				|
-				(ActualParam) Expr:E1 {: RESULT=new ActualParam(E1); RESULT.setLine(E1left); :}
+				(ActualParam) SingleActualParam:S1 {: RESULT=new ActualParam(S1); RESULT.setLine(S1left); :}
 				;
 				
+SingleActualParam ::= (SingleActualParam) Expr:ex {: RESULT=new SingleActualParam(ex); RESULT.setLine(exleft); :};
+			
 Designator ::= (Designator) IDENT:name {: RESULT=new Designator(name); RESULT.setLine(nameleft); :};
 
 Addop ::= (Add) PLUS {: RESULT=new Add(); :}
@@ -189,5 +212,18 @@ Mulop ::= (Mul) MUL {: RESULT=new Mul(); :}
 Incop ::= (Inc) INC {: RESULT=new Inc(); :}
 		|
 		(Dec) DEC {: RESULT=new Dec(); :}
+		;
+		
+Relop ::= (Eq) EQ {: RESULT=new Eq(); :}
+		| 
+		(Ne) NE {: RESULT=new Ne(); :}
+		|
+		(Lt) LT {: RESULT=new Lt(); :}
+		|
+		(Le) LE {: RESULT=new Le(); :}
+		|
+		(Gt) GT {: RESULT=new Gt(); :}
+		|
+		(Ge) GE {: RESULT=new Ge(); :}
 		;
 			

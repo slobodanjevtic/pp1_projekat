@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 10/0/2021 23:9:50
+// 12/0/2021 13:18:40
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,13 +8,13 @@ package rs.ac.bg.etf.pp1.ast;
 public class ActualParams extends ActualParsList {
 
     private ActualParsList ActualParsList;
-    private Expr Expr;
+    private SingleActualParam SingleActualParam;
 
-    public ActualParams (ActualParsList ActualParsList, Expr Expr) {
+    public ActualParams (ActualParsList ActualParsList, SingleActualParam SingleActualParam) {
         this.ActualParsList=ActualParsList;
         if(ActualParsList!=null) ActualParsList.setParent(this);
-        this.Expr=Expr;
-        if(Expr!=null) Expr.setParent(this);
+        this.SingleActualParam=SingleActualParam;
+        if(SingleActualParam!=null) SingleActualParam.setParent(this);
     }
 
     public ActualParsList getActualParsList() {
@@ -25,12 +25,12 @@ public class ActualParams extends ActualParsList {
         this.ActualParsList=ActualParsList;
     }
 
-    public Expr getExpr() {
-        return Expr;
+    public SingleActualParam getSingleActualParam() {
+        return SingleActualParam;
     }
 
-    public void setExpr(Expr Expr) {
-        this.Expr=Expr;
+    public void setSingleActualParam(SingleActualParam SingleActualParam) {
+        this.SingleActualParam=SingleActualParam;
     }
 
     public void accept(Visitor visitor) {
@@ -39,18 +39,18 @@ public class ActualParams extends ActualParsList {
 
     public void childrenAccept(Visitor visitor) {
         if(ActualParsList!=null) ActualParsList.accept(visitor);
-        if(Expr!=null) Expr.accept(visitor);
+        if(SingleActualParam!=null) SingleActualParam.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(ActualParsList!=null) ActualParsList.traverseTopDown(visitor);
-        if(Expr!=null) Expr.traverseTopDown(visitor);
+        if(SingleActualParam!=null) SingleActualParam.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(ActualParsList!=null) ActualParsList.traverseBottomUp(visitor);
-        if(Expr!=null) Expr.traverseBottomUp(visitor);
+        if(SingleActualParam!=null) SingleActualParam.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -65,8 +65,8 @@ public class ActualParams extends ActualParsList {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(Expr!=null)
-            buffer.append(Expr.toString("  "+tab));
+        if(SingleActualParam!=null)
+            buffer.append(SingleActualParam.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

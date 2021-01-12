@@ -1,5 +1,6 @@
 package rs.ac.bg.etf.pp1;
 
+import rs.ac.bg.etf.pp1.ast.ActualParam;
 import rs.ac.bg.etf.pp1.ast.FormalParamDecl;
 import rs.ac.bg.etf.pp1.ast.VarDecl;
 import rs.ac.bg.etf.pp1.ast.VisitorAdaptor;
@@ -25,4 +26,12 @@ public class CounterVisitor extends VisitorAdaptor {
 			count++;
 		}
 	}
+	
+	public static class ActualParamCounter extends CounterVisitor {
+		
+		public void visit(ActualParam actualParam) {
+			count++;
+		}
+	}
+	
 }
