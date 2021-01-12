@@ -54,7 +54,7 @@ terminal Integer NUMBER;
 terminal Boolean BOOL;
 terminal Character CHAR;
 terminal String IDENT;
-terminal IF, ELSE;
+terminal IF, ELSE, DO, WHILE;
 
 nonterminal VarDeclList VarDeclList;
 nonterminal MethodDeclList MethodDeclList;
@@ -108,7 +108,7 @@ FormalParamList ::= (MultipleFormalParamDecl) FormalParamList:F1 COMMA FormalPar
 				;
 				
 FormalParamDecl ::= (FormalParamDecl) Type:T1 IDENT:paramName {: RESULT=new FormalParamDecl(T1, paramName); RESULT.setLine(T1left); :};
-				
+
 StatementList ::= (Statements) StatementList:S1 Statement:S2 {: RESULT=new Statements(S1, S2); RESULT.setLine(S1left); :}
 				|
 				(NoStmt) {: RESULT=new NoStmt(); :} /* epsilon */
@@ -121,10 +121,12 @@ Statement ::= (MatchedStmt) Matched:M1 {: RESULT=new MatchedStmt(M1); RESULT.set
 		
 Unmatched ::= (UnmatchedIf) IF LPAREN CondExpr:C1 RPAREN Statement:S2 {: RESULT=new UnmatchedIf(C1, S2); RESULT.setLine(C1left); :}
 			|
-			(UnmatchedElse) IF LPAREN CondExpr:C1 RPAREN Matched:M2 ELSE Unmatched:U3 {: RESULT=new UnmatchedElse(C1, M2, U3); RESULT.setLine(C1left); :}
+			(UnmatchedIfElse) IF LPAREN CondExpr:C1 RPAREN Matched:M2 ELSE Unmatched:U3 {: RESULT=new UnmatchedIfElse(C1, M2, U3); RESULT.setLine(C1left); :}
 			;
 				
-Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assignment(dest, ex); RESULT.setLine(destleft); :}
+Matched ::= (Block) LBRACE StatementList:S1 RBRACE {: RESULT=new Block(S1); RESULT.setLine(S1left); :}
+			|
+			(Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assignment(dest, ex); RESULT.setLine(destleft); :}
 			|
 			(Increment) Designator:de Incop:I1 SEMI {: RESULT=new Increment(de, I1); RESULT.setLine(deleft); :}
 			|
@@ -133,11 +135,15 @@ Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assign
 			|
 			(PrintStmt) PRINT LPAREN Expr:E1 RPAREN SEMI {: RESULT=new PrintStmt(E1); RESULT.setLine(E1left); :}
 			|
+			(ReadStmt) READ LPAREN Designator:D1 RPAREN SEMI {: RESULT=new ReadStmt(D1); RESULT.setLine(D1left); :}
+			|
 			(ReturnExpr) RETURN Expr:t SEMI {: RESULT=new ReturnExpr(t); RESULT.setLine(tleft); :}
 			|
 			(ReturnNoExpr) RETURN SEMI {: RESULT=new ReturnNoExpr(); :}
 			|
-			(MatchedStatement) IF LPAREN CondExpr:C1 RPAREN Matched:M2 ELSE Matched:M3 {: RESULT=new MatchedStatement(C1, M2, M3); RESULT.setLine(C1left); :}
+			(MatchedIfElse) IF LPAREN CondExpr:C1 RPAREN Matched:M2 ELSE Matched:M3 {: RESULT=new MatchedIfElse(C1, M2, M3); RESULT.setLine(C1left); :}
+			|
+			(MatchedDoWhile) DO Matched:M1 WHILE LPAREN CondExpr:C2 RPAREN SEMI {: RESULT=new MatchedDoWhile(M1, C2); RESULT.setLine(M1left); :}
 			|
 			(ProcCall) Designator:func LPAREN ActualPars:A1 RPAREN SEMI {: RESULT=new ProcCall(func, A1); RESULT.setLine(funcleft); :}
 			;

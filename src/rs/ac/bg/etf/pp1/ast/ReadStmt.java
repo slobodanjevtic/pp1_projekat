@@ -5,11 +5,11 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class Var extends Factor {
+public class ReadStmt extends Matched {
 
     private Designator Designator;
 
-    public Var (Designator Designator) {
+    public ReadStmt (Designator Designator) {
         this.Designator=Designator;
         if(Designator!=null) Designator.setParent(this);
     }
@@ -43,7 +43,7 @@ public class Var extends Factor {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("Var(\n");
+        buffer.append("ReadStmt(\n");
 
         if(Designator!=null)
             buffer.append(Designator.toString("  "+tab));
@@ -52,7 +52,7 @@ public class Var extends Factor {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [Var]");
+        buffer.append(") [ReadStmt]");
         return buffer.toString();
     }
 }

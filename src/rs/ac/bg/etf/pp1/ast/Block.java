@@ -5,16 +5,13 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class Statements extends StatementList {
+public class Block extends Matched {
 
     private StatementList StatementList;
-    private Statement Statement;
 
-    public Statements (StatementList StatementList, Statement Statement) {
+    public Block (StatementList StatementList) {
         this.StatementList=StatementList;
         if(StatementList!=null) StatementList.setParent(this);
-        this.Statement=Statement;
-        if(Statement!=null) Statement.setParent(this);
     }
 
     public StatementList getStatementList() {
@@ -25,39 +22,28 @@ public class Statements extends StatementList {
         this.StatementList=StatementList;
     }
 
-    public Statement getStatement() {
-        return Statement;
-    }
-
-    public void setStatement(Statement Statement) {
-        this.Statement=Statement;
-    }
-
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
 
     public void childrenAccept(Visitor visitor) {
         if(StatementList!=null) StatementList.accept(visitor);
-        if(Statement!=null) Statement.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(StatementList!=null) StatementList.traverseTopDown(visitor);
-        if(Statement!=null) Statement.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(StatementList!=null) StatementList.traverseBottomUp(visitor);
-        if(Statement!=null) Statement.traverseBottomUp(visitor);
         accept(visitor);
     }
 
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("Statements(\n");
+        buffer.append("Block(\n");
 
         if(StatementList!=null)
             buffer.append(StatementList.toString("  "+tab));
@@ -65,14 +51,8 @@ public class Statements extends StatementList {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(Statement!=null)
-            buffer.append(Statement.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
         buffer.append(tab);
-        buffer.append(") [Statements]");
+        buffer.append(") [Block]");
         return buffer.toString();
     }
 }

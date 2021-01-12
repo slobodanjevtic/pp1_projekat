@@ -5,16 +5,24 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class UnmatchedIf extends Unmatched {
+public class MatchedDoWhile extends Matched {
 
+    private Matched Matched;
     private CondExpr CondExpr;
-    private Statement Statement;
 
-    public UnmatchedIf (CondExpr CondExpr, Statement Statement) {
+    public MatchedDoWhile (Matched Matched, CondExpr CondExpr) {
+        this.Matched=Matched;
+        if(Matched!=null) Matched.setParent(this);
         this.CondExpr=CondExpr;
         if(CondExpr!=null) CondExpr.setParent(this);
-        this.Statement=Statement;
-        if(Statement!=null) Statement.setParent(this);
+    }
+
+    public Matched getMatched() {
+        return Matched;
+    }
+
+    public void setMatched(Matched Matched) {
+        this.Matched=Matched;
     }
 
     public CondExpr getCondExpr() {
@@ -25,39 +33,37 @@ public class UnmatchedIf extends Unmatched {
         this.CondExpr=CondExpr;
     }
 
-    public Statement getStatement() {
-        return Statement;
-    }
-
-    public void setStatement(Statement Statement) {
-        this.Statement=Statement;
-    }
-
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(Matched!=null) Matched.accept(visitor);
         if(CondExpr!=null) CondExpr.accept(visitor);
-        if(Statement!=null) Statement.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(Matched!=null) Matched.traverseTopDown(visitor);
         if(CondExpr!=null) CondExpr.traverseTopDown(visitor);
-        if(Statement!=null) Statement.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(Matched!=null) Matched.traverseBottomUp(visitor);
         if(CondExpr!=null) CondExpr.traverseBottomUp(visitor);
-        if(Statement!=null) Statement.traverseBottomUp(visitor);
         accept(visitor);
     }
 
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("UnmatchedIf(\n");
+        buffer.append("MatchedDoWhile(\n");
+
+        if(Matched!=null)
+            buffer.append(Matched.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
+        buffer.append("\n");
 
         if(CondExpr!=null)
             buffer.append(CondExpr.toString("  "+tab));
@@ -65,14 +71,8 @@ public class UnmatchedIf extends Unmatched {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(Statement!=null)
-            buffer.append(Statement.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
         buffer.append(tab);
-        buffer.append(") [UnmatchedIf]");
+        buffer.append(") [MatchedDoWhile]");
         return buffer.toString();
     }
 }

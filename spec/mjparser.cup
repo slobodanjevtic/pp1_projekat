@@ -54,7 +54,7 @@ terminal Integer NUMBER;
 terminal Boolean BOOL;
 terminal Character CHAR;
 terminal String IDENT;
-terminal IF, ELSE;
+terminal IF, ELSE, DO, WHILE;
 
 nonterminal VarDeclList, MethodDeclList, SingleVarDecl;
 nonterminal Params, StatementList, FormalParamList, FormalParamDecl, Statement;
@@ -97,7 +97,7 @@ FormalParamList ::= (MultipleFormalParamDecl) FormalParamList COMMA FormalParamD
 				;
 				
 FormalParamDecl ::= (FormalParamDecl) Type IDENT:paramName;
-				
+
 StatementList ::= (Statements) StatementList Statement
 				|
 				(NoStmt) /* epsilon */
@@ -110,10 +110,12 @@ Statement ::= (MatchedStmt) Matched
 		
 Unmatched ::= (UnmatchedIf) IF LPAREN CondExpr RPAREN Statement
 			|
-			(UnmatchedElse) IF LPAREN CondExpr RPAREN Matched ELSE Unmatched
+			(UnmatchedIfElse) IF LPAREN CondExpr RPAREN Matched ELSE Unmatched
 			;
 				
-Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI
+Matched ::= (Block) LBRACE StatementList RBRACE
+			|
+			(Assignment) Designator:dest EQUAL Expr:ex SEMI
 			|
 			(Increment) Designator:de Incop SEMI
 			|
@@ -122,11 +124,15 @@ Matched ::= (Assignment) Designator:dest EQUAL Expr:ex SEMI
 			|
 			(PrintStmt) PRINT LPAREN Expr RPAREN SEMI
 			|
+			(ReadStmt) READ LPAREN Designator RPAREN SEMI
+			|
 			(ReturnExpr) RETURN Expr:t SEMI
 			|
 			(ReturnNoExpr) RETURN SEMI
 			|
-			(MatchedStatement) IF LPAREN CondExpr RPAREN Matched ELSE Matched
+			(MatchedIfElse) IF LPAREN CondExpr RPAREN Matched ELSE Matched
+			|
+			(MatchedDoWhile) DO Matched WHILE LPAREN CondExpr RPAREN SEMI
 			|
 			(ProcCall) Designator:func LPAREN ActualPars RPAREN SEMI
 			;

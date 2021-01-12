@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 12/0/2021 13:18:40
+// 12/0/2021 15:50:23
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -64,14 +64,17 @@ public interface Visitor {
     public void visit(MinusTermExpr MinusTermExpr);
     public void visit(AddExpr AddExpr);
     public void visit(ProcCall ProcCall);
-    public void visit(MatchedStatement MatchedStatement);
+    public void visit(MatchedDoWhile MatchedDoWhile);
+    public void visit(MatchedIfElse MatchedIfElse);
     public void visit(ReturnNoExpr ReturnNoExpr);
     public void visit(ReturnExpr ReturnExpr);
+    public void visit(ReadStmt ReadStmt);
     public void visit(PrintStmt PrintStmt);
     public void visit(ErrorStmt ErrorStmt);
     public void visit(Increment Increment);
     public void visit(Assignment Assignment);
-    public void visit(UnmatchedElse UnmatchedElse);
+    public void visit(Block Block);
+    public void visit(UnmatchedIfElse UnmatchedIfElse);
     public void visit(UnmatchedIf UnmatchedIf);
     public void visit(UnmatchedStmt UnmatchedStmt);
     public void visit(MatchedStmt MatchedStmt);
