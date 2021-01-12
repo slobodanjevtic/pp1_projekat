@@ -1,13 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 12/0/2021 20:10:35
+// 12/0/2021 20:10:34
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class Add extends Addop {
+public class ContinueExpr extends Matched {
 
-    public Add () {
+    public ContinueExpr () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class Add extends Addop {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("Add(\n");
+        buffer.append("ContinueExpr(\n");
 
         buffer.append(tab);
-        buffer.append(") [Add]");
+        buffer.append(") [ContinueExpr]");
         return buffer.toString();
     }
 }

@@ -3,7 +3,7 @@ package rs.ac.bg.etf.pp1;
 import rs.etf.pp1.mj.runtime.Code;
 import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.Obj;
-
+import rs.etf.pp1.symboltable.concepts.Struct;
 import rs.ac.bg.etf.pp1.CounterVisitor.FormParamCounter;
 import rs.ac.bg.etf.pp1.CounterVisitor.VarCounter;
 import rs.ac.bg.etf.pp1.ast.Add;
@@ -23,6 +23,7 @@ import rs.ac.bg.etf.pp1.ast.Div;
 import rs.ac.bg.etf.pp1.ast.MulExpr;
 import rs.ac.bg.etf.pp1.ast.PrintStmt;
 import rs.ac.bg.etf.pp1.ast.ProcCall;
+import rs.ac.bg.etf.pp1.ast.ReadStmt;
 import rs.ac.bg.etf.pp1.ast.ReturnExpr;
 import rs.ac.bg.etf.pp1.ast.ReturnNoExpr;
 import rs.ac.bg.etf.pp1.ast.SyntaxNode;
@@ -43,6 +44,13 @@ public class CodeGenerator extends VisitorAdaptor {
 		else {
 			Code.loadConst(1);
 			Code.put(Code.bprint);
+		}
+	}
+	
+	public void visit(ReadStmt readStmt) {
+		Obj var = Tab.find(readStmt.getDesignator().getName());
+		if(var == Tab.noObj) {
+			var = Tab.find(readStmt.getDesignator().obj.getName());
 		}
 	}
 	

@@ -5,13 +5,15 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class PrintStmt extends Matched {
+public class PrintStmtNum extends Matched {
 
     private Expr Expr;
+    private Integer N2;
 
-    public PrintStmt (Expr Expr) {
+    public PrintStmtNum (Expr Expr, Integer N2) {
         this.Expr=Expr;
         if(Expr!=null) Expr.setParent(this);
+        this.N2=N2;
     }
 
     public Expr getExpr() {
@@ -20,6 +22,14 @@ public class PrintStmt extends Matched {
 
     public void setExpr(Expr Expr) {
         this.Expr=Expr;
+    }
+
+    public Integer getN2() {
+        return N2;
+    }
+
+    public void setN2(Integer N2) {
+        this.N2=N2;
     }
 
     public void accept(Visitor visitor) {
@@ -43,7 +53,7 @@ public class PrintStmt extends Matched {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("PrintStmt(\n");
+        buffer.append("PrintStmtNum(\n");
 
         if(Expr!=null)
             buffer.append(Expr.toString("  "+tab));
@@ -51,8 +61,11 @@ public class PrintStmt extends Matched {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
+        buffer.append(" "+tab+N2);
+        buffer.append("\n");
+
         buffer.append(tab);
-        buffer.append(") [PrintStmt]");
+        buffer.append(") [PrintStmtNum]");
         return buffer.toString();
     }
 }

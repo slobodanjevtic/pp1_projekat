@@ -48,13 +48,13 @@ scan with {:
 	return s;
 :}
 
-terminal PROG, LBRACE, RBRACE, SEMI, LPAREN, RPAREN, COMMA, PRINT, READ, VOID;
+terminal PROG, LBRACE, RBRACE, SEMI, COLON, QUEST, LPAREN, RPAREN, COMMA, LBRACKET, RBRACKET;
+terminal PRINT, READ, VOID, IF, ELSE, DO, WHILE, BREAK, CONTINUE;
 terminal EQUAL, RETURN, PLUS, MINUS, MUL, DIV, MOD, INC, DEC, OR, AND, EQ, NE, LT, LE, GT, GE;
 terminal Integer NUMBER;
 terminal Boolean BOOL;
 terminal Character CHAR;
 terminal String IDENT;
-terminal IF, ELSE, DO, WHILE;
 
 nonterminal VarDeclList, MethodDeclList, SingleVarDecl;
 nonterminal Params, StatementList, FormalParamList, FormalParamDecl, Statement;
@@ -124,11 +124,17 @@ Matched ::= (Block) LBRACE StatementList RBRACE
 			|
 			(PrintStmt) PRINT LPAREN Expr RPAREN SEMI
 			|
+			(PrintStmtNum) PRINT LPAREN Expr COMMA NUMBER RPAREN SEMI
+			|
 			(ReadStmt) READ LPAREN Designator RPAREN SEMI
 			|
 			(ReturnExpr) RETURN Expr:t SEMI
 			|
 			(ReturnNoExpr) RETURN SEMI
+			|
+			(BreakExpr) BREAK SEMI
+			|
+			(ContinueExpr) CONTINUE SEMI
 			|
 			(MatchedIfElse) IF LPAREN CondExpr RPAREN Matched ELSE Matched
 			|
@@ -149,7 +155,6 @@ Term ::= (MulExpr) Term:tr Mulop Factor:fc
 		(Fact) Factor:fc
 		;
 		
-
 Factor ::= (NumConst) NUMBER
 		|
 		(BoolConst) BOOL

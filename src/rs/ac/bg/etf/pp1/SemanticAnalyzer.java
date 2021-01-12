@@ -257,6 +257,13 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		}
 	}
     
+    public void visit(RelCondFact condFact) {
+    	if(condFact.getExpr().struct.getKind() != condFact.getExpr1().struct.getKind()) {
+    		report_error("Greska na liniji " + condFact.getLine() + " : nekompatibilni tipovi u poredjenu! ", condFact);
+    		errorDetected = true;
+    	}
+	}
+    
     public boolean passed() {
 		return !errorDetected;
 	}
