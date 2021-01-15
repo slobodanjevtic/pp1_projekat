@@ -4,30 +4,14 @@ import rs.etf.pp1.mj.runtime.Code;
 import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.Obj;
 import rs.etf.pp1.symboltable.concepts.Struct;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Stack;
+
 import rs.ac.bg.etf.pp1.CounterVisitor.FormParamCounter;
 import rs.ac.bg.etf.pp1.CounterVisitor.VarCounter;
-import rs.ac.bg.etf.pp1.ast.Add;
-import rs.ac.bg.etf.pp1.ast.AddExpr;
-import rs.ac.bg.etf.pp1.ast.Assignment;
-import rs.ac.bg.etf.pp1.ast.CharConst;
-import rs.ac.bg.etf.pp1.ast.NumConst;
-import rs.ac.bg.etf.pp1.ast.Designator;
-import rs.ac.bg.etf.pp1.ast.FuncCall;
-import rs.ac.bg.etf.pp1.ast.Inc;
-import rs.ac.bg.etf.pp1.ast.Increment;
-import rs.ac.bg.etf.pp1.ast.MethodDecl;
-import rs.ac.bg.etf.pp1.ast.MethodTypeName;
-import rs.ac.bg.etf.pp1.ast.MinusTermExpr;
-import rs.ac.bg.etf.pp1.ast.Mul;
-import rs.ac.bg.etf.pp1.ast.Div;
-import rs.ac.bg.etf.pp1.ast.MulExpr;
-import rs.ac.bg.etf.pp1.ast.PrintStmt;
-import rs.ac.bg.etf.pp1.ast.ProcCall;
-import rs.ac.bg.etf.pp1.ast.ReadStmt;
-import rs.ac.bg.etf.pp1.ast.ReturnExpr;
-import rs.ac.bg.etf.pp1.ast.ReturnNoExpr;
-import rs.ac.bg.etf.pp1.ast.SyntaxNode;
-import rs.ac.bg.etf.pp1.ast.VisitorAdaptor;
+import rs.ac.bg.etf.pp1.ast.*;
 
 public class CodeGenerator extends VisitorAdaptor {
 	private int mainPc;
@@ -47,11 +31,20 @@ public class CodeGenerator extends VisitorAdaptor {
 		}
 	}
 	
-	public void visit(ReadStmt readStmt) {
-		Obj var = Tab.find(readStmt.getDesignator().getName());
-		if(var == Tab.noObj) {
-			var = Tab.find(readStmt.getDesignator().obj.getName());
+	public void visit(PrintStmtNum printStmtNum) {
+		Code.loadConst(printStmtNum.getN2());
+		if(printStmtNum.getExpr().struct == Tab.intType) {
+			Code.put(Code.print);
 		}
+		else {
+			Code.put(Code.bprint);
+		}
+	}
+	
+	public void visit(ReadStmt readStmt) {
+		Code.put(Code.pop);
+		Code.put(Code.read);
+		Code.store(readStmt.getDesignator().obj);
 	}
 	
 	public void visit(NumConst cnst) {
@@ -177,7 +170,137 @@ public class CodeGenerator extends VisitorAdaptor {
 		Code.store(inc.getDesignator().obj);
 
 	}
+
+	private int jmpInstPc_1 = 0;
+	private int jmpInstPc_2 = 0;
+	private int jmpAdr = 0;
+	private int jmpAdrTemp = 0;
+	private int curJmpCode = 0;
+	private int ifLevel = 0;
+	private boolean noOrInIf = true;
+	private Stack<Integer> ifJmpAdrStack = new Stack<Integer>();
 	
+	public void visit(IfRightParen paren) {
+		inverseJmpInst(jmpInstPc_2);
+		//jmpAdrs.add(Code.pc);
+		JumpInstBackpatch.setJumpOn(jmpInstPc_2, JumpInstBackpatch.jumpOnElse);
+		if(noOrInIf) {
+			JumpInstBackpatch.setJumpOnForAllInst(jmpInstPc_2, JumpInstBackpatch.jumpOnElse, ifLevel);
+		}
+		JumpInstBackpatch.setJmpAdr(Code.pc, JumpInstBackpatch.jumpInIf, ifLevel);
+		noOrInIf = true;
+		ifLevel++;
+	}
 	
+	public void visit(OrCondExpr condExpr) {
+		JumpInstBackpatch.setJmpAdr(jmpAdrTemp, JumpInstBackpatch.jumpAfterOrOp, ifLevel);
+		JumpInstBackpatch.setJmpAdr(Code.pc, JumpInstBackpatch.jumpAfterOrOp, ifLevel);
+		noOrInIf = false;
+	}
+	
+	public void visit(AndCondExpr condExpr) {
+
+		inverseJmpInst(jmpInstPc_1);
+	}
+	
+	private void setJmpInstPc() {
+		jmpInstPc_1 = jmpInstPc_2;
+		jmpInstPc_2 = Code.pc;
+		new JumpInstBackpatch(Code.pc, ifLevel);
+	}
+	
+	private void inverseJmpInst(int jmpInstPc) {
+		Code.buf[jmpInstPc] = (byte)(Code.jcc + Code.inverse[Code.buf[jmpInstPc] - Code.jcc]);
+		JumpInstBackpatch.setJumpOn(jmpInstPc, JumpInstBackpatch.jumpAfterOrOp);
+	}
+	
+	public void visit(Eq eq) {
+		curJmpCode = Code.inverse[Code.eq];
+	}
+	
+	public void visit(Ne ne) {
+		curJmpCode = Code.inverse[Code.ne];
+	}
+	
+	public void visit(Lt lt) {
+		curJmpCode = Code.inverse[Code.lt];
+	}
+	
+	public void visit(Le le) {
+		curJmpCode = Code.inverse[Code.le];
+	}
+	
+	public void visit(Gt gt) {
+		curJmpCode = Code.inverse[Code.gt];
+	}
+	
+	public void visit(Ge ge) {
+		curJmpCode = Code.inverse[Code.ge];
+	}
+	
+	public void visit(RelCondFact relFact) {
+		setJmpInstPc();
+		Code.putFalseJump(curJmpCode, 0);
+		jmpAdr = jmpInstPc_2;
+	}
+	
+	public void visit(SingleAndCondExpr andExpr) {
+		//jmpAdrs.add(jmpAdr);
+		if(!noOrInIf) {
+			JumpInstBackpatch.setJmpAdr(jmpAdr, JumpInstBackpatch.jumpAfterOrOp, ifLevel);			
+		}
+
+	}
+	
+	public void visit(SingleOrCondExpr orExpr) {
+		jmpAdrTemp = Code.pc;
+		//JumpInstBackpatch.setJmpAdr(Code.pc, JumpInstBackpatch.jumpAfterOrOp, ifLevel);
+	}
+	
+	public void visit(Else els) {
+		jmpAdr = Code.pc;
+		new JumpInstBackpatch(Code.pc, ifLevel).setJmpOn(JumpInstBackpatch.jumpOut);;
+		Code.putJump(0);
+		ifJmpAdrStack.push(Code.pc);
+	}
+	
+	public void visit(UnmatchedIf unmatchedIf) {
+		ifLevel--;
+		JumpInstBackpatch.setJmpAdr(Code.pc, JumpInstBackpatch.jumpOnElse, ifLevel);
+	}
+	
+	public void visit(UnmatchedIfElse unmatchedIfElse) {
+		JumpInstBackpatch.setJmpAdr(Code.pc, JumpInstBackpatch.jumpOut, ifLevel);
+		ifLevel--;
+		JumpInstBackpatch.setJmpAdr(ifJmpAdrStack.pop(), JumpInstBackpatch.jumpOnElse, ifLevel);
+	}
+	
+	public void visit(MatchedIfElse matchedIfElse) {
+		JumpInstBackpatch.setJmpAdr(Code.pc, JumpInstBackpatch.jumpOut, ifLevel);
+		ifLevel--;
+		JumpInstBackpatch.setJmpAdr(ifJmpAdrStack.pop(), JumpInstBackpatch.jumpOnElse, ifLevel);
+	}
+	
+	private Stack<Integer> whileJmpAdrStack = new Stack<Integer>();
+	
+	public void visit(Do d) {
+		whileJmpAdrStack.push(Code.pc);
+	}
+	
+	public void visit(MatchedDoWhile doWhile) {
+		Code.putJump(whileJmpAdrStack.pop());
+		ifLevel--;
+		JumpInstBackpatch.setJmpAdr(Code.pc, JumpInstBackpatch.jumpOnElse, ifLevel);
+		JumpInstBackpatch.setJmpAdr(Code.pc, JumpInstBackpatch.jumpOnElse, ifLevel+1);
+	}
+	
+	public void visit(BreakExpr breakExpr) {
+		new JumpInstBackpatch(Code.pc, ifLevel).setJmpOn(JumpInstBackpatch.jumpOnElse);;
+		Code.putJump(0);
+	}
+	
+	public void visit(ContinueExpr conExpr) {
+		Code.putJump(whileJmpAdrStack.peek());
+	}
 }
 

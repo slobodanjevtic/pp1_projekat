@@ -58,7 +58,7 @@ terminal String IDENT;
 
 nonterminal VarDeclList, MethodDeclList, SingleVarDecl;
 nonterminal Params, StatementList, FormalParamList, FormalParamDecl, Statement;
-nonterminal Addop, Mulop, Incop, Relop, ActualPars, ActualParsList;
+nonterminal Addop, Mulop, Incop, Relop, Else, Do, RightParen, ActualPars, ActualParsList;
 nonterminal Unmatched;
 
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, SingleMethodDecl, MethodTypeName, Designator, SingleActualParam;
@@ -108,10 +108,17 @@ Statement ::= (MatchedStmt) Matched
 			(UnmatchedStmt) Unmatched
 			;
 		
-Unmatched ::= (UnmatchedIf) IF LPAREN CondExpr RPAREN Statement
+Unmatched ::= (UnmatchedIf) IF LPAREN CondExpr RightParen Statement
 			|
-			(UnmatchedIfElse) IF LPAREN CondExpr RPAREN Matched ELSE Unmatched
+			(UnmatchedIfElse) IF LPAREN CondExpr RightParen Matched Else Unmatched
 			;
+			
+			
+RightParen ::= (IfRightParen) RPAREN; 
+
+Else ::= (Else) ELSE;
+
+Do ::= (Do) DO;  
 				
 Matched ::= (Block) LBRACE StatementList RBRACE
 			|
@@ -130,15 +137,15 @@ Matched ::= (Block) LBRACE StatementList RBRACE
 			|
 			(ReturnExpr) RETURN Expr:t SEMI
 			|
-			(ReturnNoExpr) RETURN SEMI
-			|
 			(BreakExpr) BREAK SEMI
 			|
 			(ContinueExpr) CONTINUE SEMI
 			|
-			(MatchedIfElse) IF LPAREN CondExpr RPAREN Matched ELSE Matched
+			(ReturnNoExpr) RETURN SEMI
 			|
-			(MatchedDoWhile) DO Matched WHILE LPAREN CondExpr RPAREN SEMI
+			(MatchedIfElse) IF LPAREN CondExpr RightParen Matched Else Matched
+			|
+			(MatchedDoWhile) Do Matched WHILE LPAREN CondExpr RightParen SEMI
 			|
 			(ProcCall) Designator:func LPAREN ActualPars RPAREN SEMI
 			;

@@ -52,6 +52,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		printCallCount++;
 	}
     
+    public void visit(ReadStmt readStmt) {
+		Obj var = Tab.find(readStmt.getDesignator().getName());
+	}
+    
     public void visit(ProgName progName) {
 		progName.obj = Tab.insert(Obj.Prog, progName.getProgName(), Tab.noType);
 		Tab.openScope();
@@ -137,6 +141,30 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		}
 		callFuncArgs.clear();
     }
+    
+    private int inWhile = 0;
+    
+    public void visit(Do d) {
+		inWhile++;
+	}
+    
+    public void visit(BreakExpr breakExpr) {
+		if(inWhile == 0) {
+    		report_error("Greska na liniji " + breakExpr.getLine() + " : break je dozvoljen samo u petljama! ", breakExpr);
+    		errorDetected = true;
+		}
+	}
+    
+    public void visit(ContinueExpr coExpr) {
+		if(inWhile == 0) {
+    		report_error("Greska na liniji " + coExpr.getLine() + " : continue je dozvoljen samo u petljama! ", coExpr);
+    		errorDetected = true;
+		}
+	}
+    
+    public void visit(MatchedDoWhile doWhile) {
+		inWhile--;
+	}
     
     public void visit(ProcCall funcCall) {
 		Obj func = funcCall.getDesignator().obj;
@@ -263,6 +291,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     		errorDetected = true;
     	}
 	}
+    
     
     public boolean passed() {
 		return !errorDetected;

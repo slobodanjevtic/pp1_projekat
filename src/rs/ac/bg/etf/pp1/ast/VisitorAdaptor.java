@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 12/0/2021 20:10:35
+// 15/0/2021 0:24:18
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -13,6 +13,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(CondExpr CondExpr) { }
     public void visit(Expr Expr) { }
     public void visit(FormalParamList FormalParamList) { }
+    public void visit(RightParen RightParen) { }
     public void visit(VarDeclList VarDeclList) { }
     public void visit(Incop Incop) { }
     public void visit(Unmatched Unmatched) { }
@@ -66,9 +67,9 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ProcCall ProcCall) { visit(); }
     public void visit(MatchedDoWhile MatchedDoWhile) { visit(); }
     public void visit(MatchedIfElse MatchedIfElse) { visit(); }
+    public void visit(ReturnNoExpr ReturnNoExpr) { visit(); }
     public void visit(ContinueExpr ContinueExpr) { visit(); }
     public void visit(BreakExpr BreakExpr) { visit(); }
-    public void visit(ReturnNoExpr ReturnNoExpr) { visit(); }
     public void visit(ReturnExpr ReturnExpr) { visit(); }
     public void visit(ReadStmt ReadStmt) { visit(); }
     public void visit(PrintStmtNum PrintStmtNum) { visit(); }
@@ -77,6 +78,9 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(Increment Increment) { visit(); }
     public void visit(Assignment Assignment) { visit(); }
     public void visit(Block Block) { visit(); }
+    public void visit(Do Do) { visit(); }
+    public void visit(Else Else) { visit(); }
+    public void visit(IfRightParen IfRightParen) { visit(); }
     public void visit(UnmatchedIfElse UnmatchedIfElse) { visit(); }
     public void visit(UnmatchedIf UnmatchedIf) { visit(); }
     public void visit(UnmatchedStmt UnmatchedStmt) { visit(); }
