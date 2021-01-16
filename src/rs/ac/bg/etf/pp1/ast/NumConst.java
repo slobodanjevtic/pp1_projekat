@@ -1,11 +1,11 @@
 // generated with ast extension for cup
 // version 0.8
-// 15/0/2021 0:24:18
+// 16/0/2021 23:40:26
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class NumConst extends Factor {
+public class NumConst extends Const {
 
     private Integer N1;
 

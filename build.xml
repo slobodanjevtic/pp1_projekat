@@ -11,6 +11,10 @@
 				<exclude name="SemanticAnalyzer.java"/>
 				<exclude name="CodeGenerator.java"/>
 				<exclude name="CounterVisitor.java"/>
+				<exclude name="JumpInstBackpatch.java"/>
+				<exclude name="Compiler.java"/>
+				<exclude name="LexicalAnalyzer.java"/>
+				<exclude name="SymTab.java"/>
 			</fileset>
 		</delete>
 		<delete>
@@ -73,6 +77,16 @@
 	<target name="runObj" depends="disasm" >
 		<java classname="rs.etf.pp1.mj.runtime.Run">
 			<arg value="test/program.obj"/>
+			<classpath>
+				<pathelement location="lib/mj-runtime-1.1.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<target name="debugObj" depends="disasm" >
+		<java classname="rs.etf.pp1.mj.runtime.Run">
+			<arg value="test/program.obj"/>
+			<arg value="-debug"/>
 			<classpath>
 				<pathelement location="lib/mj-runtime-1.1.jar"/>
 			</classpath>

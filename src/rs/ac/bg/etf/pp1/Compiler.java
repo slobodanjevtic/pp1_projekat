@@ -16,10 +16,9 @@ import org.apache.log4j.xml.DOMConfigurator;
 import rs.ac.bg.etf.pp1.ast.Program;
 import rs.ac.bg.etf.pp1.util.Log4JUtils;
 import rs.etf.pp1.mj.runtime.Code;
-import rs.etf.pp1.symboltable.Tab;
 import rs.ac.bg.etf.pp1.RuleVisitor;
 
-public class MJParserTest {
+public class Compiler {
 
 	static {
 		DOMConfigurator.configure(Log4JUtils.instance().findLoggerConfigFile());
@@ -28,11 +27,11 @@ public class MJParserTest {
 	
 	public static void main(String[] args) throws Exception {
 		
-		Logger log = Logger.getLogger(MJParserTest.class);
+		Logger log = Logger.getLogger(Compiler.class);
 		
 		Reader br = null;
 		try {
-			File sourceCode = new File("test/program.mj");
+			File sourceCode = new File(args[0]);
 			log.info("Compiling source file: " + sourceCode.getAbsolutePath());
 			
 			br = new BufferedReader(new FileReader(sourceCode));
@@ -42,31 +41,31 @@ public class MJParserTest {
 	        Symbol s = p.parse();  //pocetak parsiranja
 	        
 	        Program prog = (Program)(s.value); 
-	        Tab.init(); 
+	        SymTab.init(); 
 			// ispis sintaksnog stabla
 			log.info(prog.toString(""));
 			log.info("===================================");
 
 			// ispis prepoznatih programskih konstrukcija
-			SemanticAnalyzer sp = new SemanticAnalyzer();
-			prog.traverseBottomUp(sp); 
+			SemanticAnalyzer sa = new SemanticAnalyzer();
+			prog.traverseBottomUp(sa); 
 	      
-			log.info(" Print count calls = " + sp.printCallCount);
+			log.info(" Print count calls = " + sa.printCallCount);
 
-			log.info(" Deklarisanih promenljivih ima = " + sp.varDeclCount);
+			log.info(" Deklarisanih promenljivih ima = " + sa.varDeclCount);
 			
 			log.info("===================================");
-			Tab.dump();
+			tsdump();
 			
-			if(!p.errorDetected && sp.passed()) {
-				File objFile = new File("test/program.obj");
+			if(!p.errorDetected && sa.passed()) {
+				File objFile = new File(args[1]);
 				if(objFile.exists()) {
 					objFile.delete();
 				}
 				
 				CodeGenerator codeGenerator = new CodeGenerator();
 				prog.traverseBottomUp(codeGenerator);
-				Code.dataSize = sp.nVars;
+				Code.dataSize = sa.nVars;
 				Code.mainPc = codeGenerator.getMainPc();
 				Code.write(new FileOutputStream(objFile));
 				log.info("Parsiranje uspesno zavrseno!");
@@ -80,5 +79,9 @@ public class MJParserTest {
 			if (br != null) try { br.close(); } catch (IOException e1) { log.error(e1.getMessage(), e1); }
 		}
 
+	}
+	
+	public static void tsdump() {
+		SymTab.dump();
 	}
 }

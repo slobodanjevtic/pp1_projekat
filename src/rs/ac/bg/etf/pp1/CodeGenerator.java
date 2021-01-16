@@ -1,10 +1,8 @@
 package rs.ac.bg.etf.pp1;
 
 import rs.etf.pp1.mj.runtime.Code;
-import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.Obj;
 import rs.etf.pp1.symboltable.concepts.Struct;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -21,7 +19,7 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 
 	public void visit(PrintStmt printStmt) {
-		if(printStmt.getExpr().struct == Tab.intType) {
+		if(printStmt.getExpr().struct == SymTab.intType) {
 			Code.loadConst(5);
 			Code.put(Code.print);
 		}
@@ -33,7 +31,7 @@ public class CodeGenerator extends VisitorAdaptor {
 	
 	public void visit(PrintStmtNum printStmtNum) {
 		Code.loadConst(printStmtNum.getN2());
-		if(printStmtNum.getExpr().struct == Tab.intType) {
+		if(printStmtNum.getExpr().struct == SymTab.intType) {
 			Code.put(Code.print);
 		}
 		else {
@@ -48,15 +46,29 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	public void visit(NumConst cnst) {
-		Obj con = Tab.insert(Obj.Con, "$", cnst.struct);
+		Obj con = SymTab.insert(Obj.Con, "$", cnst.struct);
 		con.setLevel(0);
 		con.setAdr(cnst.getN1());
 		
 		Code.load(con);
 	}
 	
+	public void visit(BoolConst cnst) {
+		Obj con = SymTab.insert(Obj.Con, "$", cnst.struct);
+		con.setLevel(0);
+		if(cnst.getB1()) {
+			con.setAdr(1);
+		}
+		else {
+			con.setAdr(0);			
+		}
+
+		
+		Code.load(con);
+	}
+	
 	public void visit(CharConst cnst) {
-		Obj con = Tab.insert(Obj.Con, "$", cnst.struct);
+		Obj con = SymTab.insert(Obj.Con, "$", cnst.struct);
 		con.setLevel(0);
 		con.setAdr(cnst.getC1());
 		
@@ -94,11 +106,15 @@ public class CodeGenerator extends VisitorAdaptor {
 		Code.store(assignment.getDesignator().obj);
 	}
 
-	public void visit(Designator designator) {
+	public void visit(SingleDesignator designator) {
 		SyntaxNode parent = designator.getParent();
 		if(Assignment.class != parent.getClass() && FuncCall.class != parent.getClass() && ProcCall.class != parent.getClass()) {
 			Code.load(designator.obj);
 		}
+	}
+	
+	public void visit(ArrExpr arrExpr) {
+		
 	}
 	
 	public void visit(FuncCall funcCall) {
@@ -115,7 +131,7 @@ public class CodeGenerator extends VisitorAdaptor {
 		Code.put(Code.call);
 		Code.put2(offset);
 		
-		if(procCall.getDesignator().obj.getType() != Tab.noType) {
+		if(procCall.getDesignator().obj.getType() != SymTab.noType) {
 			Code.put(Code.pop);
 		}
 	}
@@ -159,7 +175,7 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	public void visit(Increment inc) {
-		Code.load(inc.getDesignator().obj);
+		//Code.load(inc.getDesignator().obj);
 		if(inc.getIncop().getClass() == Inc.class) {
 			Code.put(Code.const_1);
 		}
@@ -180,7 +196,7 @@ public class CodeGenerator extends VisitorAdaptor {
 	private boolean noOrInIf = true;
 	private Stack<Integer> ifJmpAdrStack = new Stack<Integer>();
 	
-	public void visit(IfRightParen paren) {
+	public void visit(RightParen paren) {
 		inverseJmpInst(jmpInstPc_2);
 		//jmpAdrs.add(Code.pc);
 		JumpInstBackpatch.setJumpOn(jmpInstPc_2, JumpInstBackpatch.jumpOnElse);
@@ -236,6 +252,13 @@ public class CodeGenerator extends VisitorAdaptor {
 	
 	public void visit(Ge ge) {
 		curJmpCode = Code.inverse[Code.ge];
+	}
+	
+	public void visit(SingleRelCondFact relFact) {
+		Code.loadConst(0);
+		setJmpInstPc();
+		Code.putFalseJump(Code.eq, 0);
+		jmpAdr = jmpInstPc_2;
 	}
 	
 	public void visit(RelCondFact relFact) {

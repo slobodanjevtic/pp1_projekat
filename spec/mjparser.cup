@@ -49,31 +49,51 @@ scan with {:
 :}
 
 terminal PROG, LBRACE, RBRACE, SEMI, COLON, QUEST, LPAREN, RPAREN, COMMA, LBRACKET, RBRACKET;
-terminal PRINT, READ, VOID, IF, ELSE, DO, WHILE, BREAK, CONTINUE;
+terminal PRINT, READ, CONST, VOID, IF, ELSE, DO, WHILE, BREAK, CONTINUE, NEW;
 terminal EQUAL, RETURN, PLUS, MINUS, MUL, DIV, MOD, INC, DEC, OR, AND, EQ, NE, LT, LE, GT, GE;
 terminal Integer NUMBER;
-terminal Boolean BOOL;
+terminal Boolean BOOLVALUE;
 terminal Character CHAR;
 terminal String IDENT;
 
-nonterminal VarDeclList, MethodDeclList, SingleVarDecl;
+nonterminal VarDeclList, AllVarDeclType, VarList, MethodDeclList, SingleVarDecl, ConstVarList, SingleConstVarDecl;
 nonterminal Params, StatementList, FormalParamList, FormalParamDecl, Statement;
 nonterminal Addop, Mulop, Incop, Relop, Else, Do, RightParen, ActualPars, ActualParsList;
 nonterminal Unmatched;
 
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, SingleMethodDecl, MethodTypeName, Designator, SingleActualParam;
-nonterminal rs.etf.pp1.symboltable.concepts.Struct Matched, Type, Expr, Term, Factor, CondExpr, CondTerm, CondFact;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Matched, Type, Expr, Term, Factor, Const, CondExpr, CondTerm, CondFact;
 
 Program ::= (Program) PROG ProgName:progName VarDeclList LBRACE MethodDeclList RBRACE;
 
 ProgName ::= (ProgName) IDENT:progName;
 
-VarDeclList ::= (VarDecl) VarDeclList SingleVarDecl
+VarDeclList ::= (VarDecl) VarDeclList AllVarDeclType
 			| 
 			(NoVarDecl) /* epsilon */
 			;
 			
-SingleVarDecl ::= (SingleVarDecl) Type:varType IDENT:varName SEMI;
+AllVarDeclType ::= (VarDeclType) Type:varType VarList:list SEMI
+			|
+			(ConstVarDeclType) Type:varType ConstVarList:list SEMI
+			;
+
+VarList ::= (MultipleVarList) VarList:list COMMA SingleVarDecl:var
+		|
+		(SingleVarList) SingleVarDecl:var
+		;
+			
+SingleVarDecl ::= (SingleOneVarDecl)  IDENT:varName
+				|
+				(SingleArrVarDecl)  IDENT:varName LBRACKET RBRACKET
+				;
+				
+ConstVarList ::= (MultipleConstVarList) ConstVarList:list COMMA SingleConstVarDecl:var
+				|
+				(SingleConstVarList) SingleConstVarDecl:var
+				;
+				
+SingleConstVarDecl ::= (SingleConstVarDecl) IDENT:varName EQUAL Const;
 
 Type ::= (Type) IDENT:typeName;
 
@@ -114,7 +134,7 @@ Unmatched ::= (UnmatchedIf) IF LPAREN CondExpr RightParen Statement
 			;
 			
 			
-RightParen ::= (IfRightParen) RPAREN; 
+RightParen ::= (RightParen) RPAREN; 
 
 Else ::= (Else) ELSE;
 
@@ -162,17 +182,22 @@ Term ::= (MulExpr) Term:tr Mulop Factor:fc
 		(Fact) Factor:fc
 		;
 		
-Factor ::= (NumConst) NUMBER
-		|
-		(BoolConst) BOOL
-		|
-		(CharConst) CHAR
+Factor ::= (TypeConst) Const
 		|
 		(Var) Designator:d
 		|
 		(FuncCall) Designator:func LPAREN ActualPars RPAREN
 		|
 		(ParenExpr) LPAREN Expr:ex RPAREN
+		|
+		(ArrExpr) NEW Type LBRACKET Expr:ex RBRACKET
+		;
+		
+Const ::= (NumConst) NUMBER
+		|
+		(BoolConst) BOOLVALUE
+		|
+		(CharConst) CHAR
 		;
 		
 CondExpr ::= (OrCondExpr) CondExpr:ce OR CondTerm:ct
@@ -202,7 +227,10 @@ ActualParsList ::= (ActualParams) ActualParsList COMMA SingleActualParam
 				
 SingleActualParam ::= (SingleActualParam) Expr:ex;
 			
-Designator ::= (Designator) IDENT:name;
+Designator ::= (SingleDesignator) IDENT:name
+			|
+			(ArrayDesignator) IDENT:name LBRACKET Expr:ex RBRACKET
+			;
 
 Addop ::= (Add) PLUS
 		|

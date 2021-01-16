@@ -1,11 +1,11 @@
 // generated with ast extension for cup
 // version 0.8
-// 15/0/2021 0:24:18
+// 16/0/2021 23:40:26
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class BoolConst extends Factor {
+public class BoolConst extends Const {
 
     private Boolean B1;
 

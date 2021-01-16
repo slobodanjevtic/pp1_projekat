@@ -49,16 +49,20 @@ scan with {:
 :}
 
 terminal PROG, LBRACE, RBRACE, SEMI, COLON, QUEST, LPAREN, RPAREN, COMMA, LBRACKET, RBRACKET;
-terminal PRINT, READ, VOID, IF, ELSE, DO, WHILE, BREAK, CONTINUE;
+terminal PRINT, READ, CONST, VOID, IF, ELSE, DO, WHILE, BREAK, CONTINUE, NEW;
 terminal EQUAL, RETURN, PLUS, MINUS, MUL, DIV, MOD, INC, DEC, OR, AND, EQ, NE, LT, LE, GT, GE;
 terminal Integer NUMBER;
-terminal Boolean BOOL;
+terminal Boolean BOOLVALUE;
 terminal Character CHAR;
 terminal String IDENT;
 
 nonterminal VarDeclList VarDeclList;
+nonterminal AllVarDeclType AllVarDeclType;
+nonterminal VarList VarList;
 nonterminal MethodDeclList MethodDeclList;
 nonterminal SingleVarDecl SingleVarDecl;
+nonterminal ConstVarList ConstVarList;
+nonterminal SingleConstVarDecl SingleConstVarDecl;
 nonterminal Params Params;
 nonterminal StatementList StatementList;
 nonterminal FormalParamList FormalParamList;
@@ -76,18 +80,38 @@ nonterminal ActualParsList ActualParsList;
 nonterminal Unmatched Unmatched;
 
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, SingleMethodDecl, MethodTypeName, Designator, SingleActualParam;
-nonterminal rs.etf.pp1.symboltable.concepts.Struct Matched, Type, Expr, Term, Factor, CondExpr, CondTerm, CondFact;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Matched, Type, Expr, Term, Factor, Const, CondExpr, CondTerm, CondFact;
 
 Program ::= (Program) PROG ProgName:progName VarDeclList:V1 LBRACE MethodDeclList:M2 RBRACE {: RESULT=new Program(progName, V1, M2); RESULT.setLine(progNameleft); :};
 
 ProgName ::= (ProgName) IDENT:progName {: RESULT=new ProgName(progName); RESULT.setLine(progNameleft); :};
 
-VarDeclList ::= (VarDecl) VarDeclList:V1 SingleVarDecl:S2 {: RESULT=new VarDecl(V1, S2); RESULT.setLine(V1left); :}
+VarDeclList ::= (VarDecl) VarDeclList:V1 AllVarDeclType:A2 {: RESULT=new VarDecl(V1, A2); RESULT.setLine(V1left); :}
 			| 
 			(NoVarDecl) {: RESULT=new NoVarDecl(); :} /* epsilon */
 			;
 			
-SingleVarDecl ::= (SingleVarDecl) Type:varType IDENT:varName SEMI {: RESULT=new SingleVarDecl(varType, varName); RESULT.setLine(varTypeleft); :};
+AllVarDeclType ::= (VarDeclType) Type:varType VarList:list SEMI {: RESULT=new VarDeclType(varType, list); RESULT.setLine(varTypeleft); :}
+			|
+			(ConstVarDeclType) Type:varType ConstVarList:list SEMI {: RESULT=new ConstVarDeclType(varType, list); RESULT.setLine(varTypeleft); :}
+			;
+
+VarList ::= (MultipleVarList) VarList:list COMMA SingleVarDecl:var {: RESULT=new MultipleVarList(list, var); RESULT.setLine(listleft); :}
+		|
+		(SingleVarList) SingleVarDecl:var {: RESULT=new SingleVarList(var); RESULT.setLine(varleft); :}
+		;
+			
+SingleVarDecl ::= (SingleOneVarDecl)  IDENT:varName {: RESULT=new SingleOneVarDecl(varName); RESULT.setLine(varNameleft); :}
+				|
+				(SingleArrVarDecl)  IDENT:varName LBRACKET RBRACKET {: RESULT=new SingleArrVarDecl(varName); RESULT.setLine(varNameleft); :}
+				;
+				
+ConstVarList ::= (MultipleConstVarList) ConstVarList:list COMMA SingleConstVarDecl:var {: RESULT=new MultipleConstVarList(list, var); RESULT.setLine(listleft); :}
+				|
+				(SingleConstVarList) SingleConstVarDecl:var {: RESULT=new SingleConstVarList(var); RESULT.setLine(varleft); :}
+				;
+				
+SingleConstVarDecl ::= (SingleConstVarDecl) IDENT:varName EQUAL Const:C1 {: RESULT=new SingleConstVarDecl(varName, C1); RESULT.setLine(varNameleft); :};
 
 Type ::= (Type) IDENT:typeName {: RESULT=new Type(typeName); RESULT.setLine(typeNameleft); :};
 
@@ -128,7 +152,7 @@ Unmatched ::= (UnmatchedIf) IF LPAREN CondExpr:C1 RightParen:R2 Statement:S3 {: 
 			;
 			
 			
-RightParen ::= (IfRightParen) RPAREN {: RESULT=new IfRightParen(); :}; 
+RightParen ::= (RightParen) RPAREN {: RESULT=new RightParen(); :}; 
 
 Else ::= (Else) ELSE {: RESULT=new Else(); :};
 
@@ -176,17 +200,22 @@ Term ::= (MulExpr) Term:tr Mulop:M1 Factor:fc {: RESULT=new MulExpr(tr, M1, fc);
 		(Fact) Factor:fc {: RESULT=new Fact(fc); RESULT.setLine(fcleft); :}
 		;
 		
-Factor ::= (NumConst) NUMBER:N1 {: RESULT=new NumConst(N1); RESULT.setLine(N1left); :}
-		|
-		(BoolConst) BOOL:B1 {: RESULT=new BoolConst(B1); RESULT.setLine(B1left); :}
-		|
-		(CharConst) CHAR:C1 {: RESULT=new CharConst(C1); RESULT.setLine(C1left); :}
+Factor ::= (TypeConst) Const:C1 {: RESULT=new TypeConst(C1); RESULT.setLine(C1left); :}
 		|
 		(Var) Designator:d {: RESULT=new Var(d); RESULT.setLine(dleft); :}
 		|
 		(FuncCall) Designator:func LPAREN ActualPars:A1 RPAREN {: RESULT=new FuncCall(func, A1); RESULT.setLine(funcleft); :}
 		|
 		(ParenExpr) LPAREN Expr:ex RPAREN {: RESULT=new ParenExpr(ex); RESULT.setLine(exleft); :}
+		|
+		(ArrExpr) NEW Type:T1 LBRACKET Expr:ex RBRACKET {: RESULT=new ArrExpr(T1, ex); RESULT.setLine(T1left); :}
+		;
+		
+Const ::= (NumConst) NUMBER:N1 {: RESULT=new NumConst(N1); RESULT.setLine(N1left); :}
+		|
+		(BoolConst) BOOLVALUE:B1 {: RESULT=new BoolConst(B1); RESULT.setLine(B1left); :}
+		|
+		(CharConst) CHAR:C1 {: RESULT=new CharConst(C1); RESULT.setLine(C1left); :}
 		;
 		
 CondExpr ::= (OrCondExpr) CondExpr:ce OR CondTerm:ct {: RESULT=new OrCondExpr(ce, ct); RESULT.setLine(celeft); :}
@@ -216,7 +245,10 @@ ActualParsList ::= (ActualParams) ActualParsList:A1 COMMA SingleActualParam:S2 {
 				
 SingleActualParam ::= (SingleActualParam) Expr:ex {: RESULT=new SingleActualParam(ex); RESULT.setLine(exleft); :};
 			
-Designator ::= (Designator) IDENT:name {: RESULT=new Designator(name); RESULT.setLine(nameleft); :};
+Designator ::= (SingleDesignator) IDENT:name {: RESULT=new SingleDesignator(name); RESULT.setLine(nameleft); :}
+			|
+			(ArrayDesignator) IDENT:name LBRACKET Expr:ex RBRACKET {: RESULT=new ArrayDesignator(name, ex); RESULT.setLine(nameleft); :}
+			;
 
 Addop ::= (Add) PLUS {: RESULT=new Add(); :}
 		|
