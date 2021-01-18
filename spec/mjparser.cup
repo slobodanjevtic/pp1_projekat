@@ -75,7 +75,7 @@ VarDeclList ::= (VarDecl) VarDeclList AllVarDeclType
 			
 AllVarDeclType ::= (VarDeclType) Type:varType VarList:list SEMI
 			|
-			(ConstVarDeclType) Type:varType ConstVarList:list SEMI
+			(ConstVarDeclType) CONST Type:varType ConstVarList:list SEMI
 			;
 
 VarList ::= (MultipleVarList) VarList:list COMMA SingleVarDecl:var
@@ -143,6 +143,8 @@ Do ::= (Do) DO;
 Matched ::= (Block) LBRACE StatementList RBRACE
 			|
 			(Assignment) Designator:dest EQUAL Expr:ex SEMI
+			| 
+			(Condition) Designator:dest EQUAL CondExpr QUEST Expr COLON Expr SEMI
 			|
 			(Increment) Designator:de Incop SEMI
 			|
@@ -170,12 +172,13 @@ Matched ::= (Block) LBRACE StatementList RBRACE
 			(ProcCall) Designator:func LPAREN ActualPars RPAREN SEMI
 			;
 			
+			
 Expr ::= (AddExpr) Expr:ex Addop Term:tr
-		|
-		(MinusTermExpr) MINUS Term:tr
-		|
-		(TermExpr) Term:tr
-		;
+				|
+				(MinusTermExpr) MINUS Term:tr
+				|
+				(TermExpr) Term:tr
+				;
 		
 Term ::= (MulExpr) Term:tr Mulop Factor:fc
 		| 

@@ -15,6 +15,7 @@
 				<exclude name="Compiler.java"/>
 				<exclude name="LexicalAnalyzer.java"/>
 				<exclude name="SymTab.java"/>
+				<exclude name="SymTabVisitor.java"/>
 			</fileset>
 		</delete>
 		<delete>

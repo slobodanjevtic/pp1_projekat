@@ -93,7 +93,7 @@ VarDeclList ::= (VarDecl) VarDeclList:V1 AllVarDeclType:A2 {: RESULT=new VarDecl
 			
 AllVarDeclType ::= (VarDeclType) Type:varType VarList:list SEMI {: RESULT=new VarDeclType(varType, list); RESULT.setLine(varTypeleft); :}
 			|
-			(ConstVarDeclType) Type:varType ConstVarList:list SEMI {: RESULT=new ConstVarDeclType(varType, list); RESULT.setLine(varTypeleft); :}
+			(ConstVarDeclType) CONST Type:varType ConstVarList:list SEMI {: RESULT=new ConstVarDeclType(varType, list); RESULT.setLine(varTypeleft); :}
 			;
 
 VarList ::= (MultipleVarList) VarList:list COMMA SingleVarDecl:var {: RESULT=new MultipleVarList(list, var); RESULT.setLine(listleft); :}
@@ -161,6 +161,8 @@ Do ::= (Do) DO {: RESULT=new Do(); :};
 Matched ::= (Block) LBRACE StatementList:S1 RBRACE {: RESULT=new Block(S1); RESULT.setLine(S1left); :}
 			|
 			(Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assignment(dest, ex); RESULT.setLine(destleft); :}
+			| 
+			(Condition) Designator:dest EQUAL CondExpr:C1 QUEST Expr:E2 COLON Expr:E3 SEMI {: RESULT=new Condition(dest, C1, E2, E3); RESULT.setLine(destleft); :}
 			|
 			(Increment) Designator:de Incop:I1 SEMI {: RESULT=new Increment(de, I1); RESULT.setLine(deleft); :}
 			|
@@ -188,12 +190,13 @@ Matched ::= (Block) LBRACE StatementList:S1 RBRACE {: RESULT=new Block(S1); RESU
 			(ProcCall) Designator:func LPAREN ActualPars:A1 RPAREN SEMI {: RESULT=new ProcCall(func, A1); RESULT.setLine(funcleft); :}
 			;
 			
+			
 Expr ::= (AddExpr) Expr:ex Addop:A1 Term:tr {: RESULT=new AddExpr(ex, A1, tr); RESULT.setLine(exleft); :}
-		|
-		(MinusTermExpr) MINUS Term:tr {: RESULT=new MinusTermExpr(tr); RESULT.setLine(trleft); :}
-		|
-		(TermExpr) Term:tr {: RESULT=new TermExpr(tr); RESULT.setLine(trleft); :}
-		;
+				|
+				(MinusTermExpr) MINUS Term:tr {: RESULT=new MinusTermExpr(tr); RESULT.setLine(trleft); :}
+				|
+				(TermExpr) Term:tr {: RESULT=new TermExpr(tr); RESULT.setLine(trleft); :}
+				;
 		
 Term ::= (MulExpr) Term:tr Mulop:M1 Factor:fc {: RESULT=new MulExpr(tr, M1, fc); RESULT.setLine(trleft); :}
 		| 

@@ -43,7 +43,6 @@ import java_cup.runtime.Symbol;
 "read" 		{ return new_symbol(sym.READ, yytext()); }
 "return" 	{ return new_symbol(sym.RETURN, yytext()); }
 "const" 	{ return new_symbol(sym.CONST, yytext()); }
-"void" 		{ return new_symbol(sym.VOID, yytext()); }
 "if" 		{ return new_symbol(sym.IF, yytext()); }
 "else" 		{ return new_symbol(sym.ELSE, yytext()); }
 "do" 		{ return new_symbol(sym.DO, yytext()); }

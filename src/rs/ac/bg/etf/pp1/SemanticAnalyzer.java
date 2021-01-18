@@ -40,20 +40,25 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	private ArrayList<Obj> vars = new ArrayList<Obj>();
 	
 	public void visit(VarDeclType varDeclType) {
-		for (Obj obj : vars) {
-			Struct str = varDeclType.getType().struct;
-			if(obj.getType() == null) {
-				SymTab.insert(obj.getKind(), obj.getName(), str);
-				report_info("Deklarisana promenljiva " + obj.getName(), varDeclType);
-			}
-			else {
-				obj.getType().setElementType(str);
-				SymTab.insert(obj.getKind(), obj.getName(), obj.getType());
-				report_info("Deklarisan niz " + obj.getName(), varDeclType);
-			}
-			
+		if(varDeclType.getType().getTypeName().equals("void")) {
+			report_error("Semanticka greska na liniji " + varDeclType.getLine() + ": promenjlive ne mogu biti tipa void ", null);
 		}
-		vars.clear();
+		else {
+			for (Obj obj : vars) {
+				Struct str = varDeclType.getType().struct;
+				if(obj.getType() == null) {
+					SymTab.insert(obj.getKind(), obj.getName(), str);
+					report_info("Deklarisana promenljiva " + obj.getName(), varDeclType);
+				}
+				else {
+					obj.getType().setElementType(str);
+					SymTab.insert(obj.getKind(), obj.getName(), obj.getType());
+					report_info("Deklarisan niz " + obj.getName(), varDeclType);
+				}
+				
+			}
+		}
+		vars.clear();			
 	}
 	
 	public void visit(SingleOneVarDecl varDecl){
@@ -72,8 +77,23 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		
 	}
 	
+	private int constVal;
+	
+	public void visit(ConstVarDeclType varDeclType) {
+		if(varDeclType.getType().getTypeName().equals("void")) {
+			report_error("Semanticka greska na liniji " + varDeclType.getLine() + ": promenjlive ne mogu biti tipa void ", null);
+		}
+	}
+
+	public void visit(SingleConstVarDecl constVarDecl) {
+		//vars.add(new Obj(Obj.Con, constVarDecl.getVarName(), constVarDecl.getConst().struct));
+		Obj o = SymTab.insert(Obj.Con, constVarDecl.getVarName(), constVarDecl.getConst().struct);
+		o.setAdr(constVal);
+	}
+	
     public void visit(PrintStmt print) {
-    	if(print.getExpr().struct != SymTab.intType && print.getExpr().struct != SymTab.charType) {
+    	if(print.getExpr().struct != SymTab.intType && print.getExpr().struct != SymTab.charType && 
+    			print.getExpr().struct.getElemType() != SymTab.intType && print.getExpr().struct.getElemType() != SymTab.charType) {
     		report_error("Semanticka greska na liniji " + print.getLine() + ": Operand instrunkcije PRINT mora biti char ili int tipa! ", null);
     	}
 		printCallCount++;
@@ -311,6 +331,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     
     public void visit(NumConst cnst) {
 		cnst.struct = SymTab.intType;
+		constVal = cnst.getN1();
 	}
     
     public void visit(BoolConst boolConst) {
@@ -334,6 +355,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			if(!assignment.getExpr().struct.assignableTo(assignment.getDesignator().obj.getType().getElemType())) {
 				report_error("Greska na liniji " + assignment.getLine() + " : nekompatibilni tipovi u dodeli vrednosti! ", null);									
 			}
+		}
+		if(assignment.getDesignator().obj.getKind() == Obj.Con) {
+			report_error("Greska na liniji " + assignment.getLine() + " : nije dozvoljno menjanje konstantne vrednosti! ", null);	
 		}
 	}
     

@@ -19,7 +19,10 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 
 	public void visit(PrintStmt printStmt) {
-		if(printStmt.getExpr().struct == SymTab.intType) {
+		if(printStmt.getExpr().struct.getElemType() == SymTab.intType || printStmt.getExpr().struct.getElemType() == SymTab.charType) {
+			Code.put(Code.aload);
+		}
+		if(printStmt.getExpr().struct == SymTab.intType || printStmt.getExpr().struct.getElemType() == SymTab.intType) {
 			Code.loadConst(5);
 			Code.put(Code.print);
 		}
@@ -30,8 +33,12 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	public void visit(PrintStmtNum printStmtNum) {
+		if( printStmtNum.getExpr().struct.getElemType() == SymTab.intType) {
+			Code.put(Code.aload);
+		}
 		Code.loadConst(printStmtNum.getN2());
-		if(printStmtNum.getExpr().struct == SymTab.intType) {
+		if(printStmtNum.getExpr().struct == SymTab.intType || printStmtNum.getExpr().struct.getElemType() == SymTab.intType) {
+			
 			Code.put(Code.print);
 		}
 		else {
@@ -51,6 +58,11 @@ public class CodeGenerator extends VisitorAdaptor {
 		con.setAdr(cnst.getN1());
 		
 		Code.load(con);
+	}
+	
+	public void visit(SingleConstVarDecl constVarDecl) {
+		Obj o = SymTab.find(constVarDecl.getVarName());
+		Code.store(o);
 	}
 	
 	public void visit(BoolConst cnst) {
@@ -102,8 +114,37 @@ public class CodeGenerator extends VisitorAdaptor {
 		Code.put(Code.return_);
 	}
 	
+	private boolean arrInit = false;
+	
 	public void visit(Assignment assignment) {
-		Code.store(assignment.getDesignator().obj);
+		boolean b = true;
+		if(assignment.getDesignator().obj.getType().getKind() == Struct.Array) {
+			if(arrInit) {
+				int kind = assignment.getDesignator().obj.getKind();
+				Code.put(Code.newarray);
+				switch (kind) {
+				case Struct.Int:
+					Code.put(1);
+					break;
+				case Struct.Char:
+				case Struct.Bool:
+					Code.put(0);				
+					break;
+
+				default:
+					break;
+				}
+				arrInit = false;				
+			}
+			else {
+				Code.put(Code.astore);
+				b = false;
+			}
+
+		}
+		if(assignment.getDesignator().obj.getKind() != Obj.Con && b) {
+			Code.store(assignment.getDesignator().obj);		
+		}
 	}
 
 	public void visit(SingleDesignator designator) {
@@ -113,8 +154,16 @@ public class CodeGenerator extends VisitorAdaptor {
 		}
 	}
 	
+	public void visit(ArrayDesignator designator) {
+		Code.load(designator.obj);
+		Code.put(Code.dup_x1);
+		Code.put(Code.pop);
+		//Code.load(tempObj);
+	}
+	
 	public void visit(ArrExpr arrExpr) {
-		
+		arrInit = true;
+		//Code.loadConst(arrExpr.getExpr().struct.getKind());
 	}
 	
 	public void visit(FuncCall funcCall) {

@@ -5,16 +5,22 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class Assignment extends Matched {
+public class Condition extends Matched {
 
     private Designator Designator;
+    private CondExpr CondExpr;
     private Expr Expr;
+    private Expr Expr1;
 
-    public Assignment (Designator Designator, Expr Expr) {
+    public Condition (Designator Designator, CondExpr CondExpr, Expr Expr, Expr Expr1) {
         this.Designator=Designator;
         if(Designator!=null) Designator.setParent(this);
+        this.CondExpr=CondExpr;
+        if(CondExpr!=null) CondExpr.setParent(this);
         this.Expr=Expr;
         if(Expr!=null) Expr.setParent(this);
+        this.Expr1=Expr1;
+        if(Expr1!=null) Expr1.setParent(this);
     }
 
     public Designator getDesignator() {
@@ -25,6 +31,14 @@ public class Assignment extends Matched {
         this.Designator=Designator;
     }
 
+    public CondExpr getCondExpr() {
+        return CondExpr;
+    }
+
+    public void setCondExpr(CondExpr CondExpr) {
+        this.CondExpr=CondExpr;
+    }
+
     public Expr getExpr() {
         return Expr;
     }
@@ -33,34 +47,54 @@ public class Assignment extends Matched {
         this.Expr=Expr;
     }
 
+    public Expr getExpr1() {
+        return Expr1;
+    }
+
+    public void setExpr1(Expr Expr1) {
+        this.Expr1=Expr1;
+    }
+
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
 
     public void childrenAccept(Visitor visitor) {
         if(Designator!=null) Designator.accept(visitor);
+        if(CondExpr!=null) CondExpr.accept(visitor);
         if(Expr!=null) Expr.accept(visitor);
+        if(Expr1!=null) Expr1.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(Designator!=null) Designator.traverseTopDown(visitor);
+        if(CondExpr!=null) CondExpr.traverseTopDown(visitor);
         if(Expr!=null) Expr.traverseTopDown(visitor);
+        if(Expr1!=null) Expr1.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(Designator!=null) Designator.traverseBottomUp(visitor);
+        if(CondExpr!=null) CondExpr.traverseBottomUp(visitor);
         if(Expr!=null) Expr.traverseBottomUp(visitor);
+        if(Expr1!=null) Expr1.traverseBottomUp(visitor);
         accept(visitor);
     }
 
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("Assignment(\n");
+        buffer.append("Condition(\n");
 
         if(Designator!=null)
             buffer.append(Designator.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
+        buffer.append("\n");
+
+        if(CondExpr!=null)
+            buffer.append(CondExpr.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
@@ -71,8 +105,14 @@ public class Assignment extends Matched {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
+        if(Expr1!=null)
+            buffer.append(Expr1.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
+        buffer.append("\n");
+
         buffer.append(tab);
-        buffer.append(") [Assignment]");
+        buffer.append(") [Condition]");
         return buffer.toString();
     }
 }
