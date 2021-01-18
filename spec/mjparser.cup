@@ -56,13 +56,14 @@ terminal Boolean BOOLVALUE;
 terminal Character CHAR;
 terminal String IDENT;
 
+
 nonterminal VarDeclList, AllVarDeclType, VarList, MethodDeclList, SingleVarDecl, ConstVarList, SingleConstVarDecl;
 nonterminal Params, StatementList, FormalParamList, FormalParamDecl, Statement;
 nonterminal Addop, Mulop, Incop, Relop, Else, Do, RightParen, ActualPars, ActualParsList;
 nonterminal Unmatched;
 
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, SingleMethodDecl, MethodTypeName, Designator, SingleActualParam;
-nonterminal rs.etf.pp1.symboltable.concepts.Struct Matched, Type, Expr, Term, Factor, Const, CondExpr, CondTerm, CondFact;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Matched, Type, Expr, MatchedExpr, Term, Factor, Const, CondExpr, CondTerm, CondFact;
 
 Program ::= (Program) PROG ProgName:progName VarDeclList LBRACE MethodDeclList RBRACE;
 
@@ -143,8 +144,8 @@ Do ::= (Do) DO;
 Matched ::= (Block) LBRACE StatementList RBRACE
 			|
 			(Assignment) Designator:dest EQUAL Expr:ex SEMI
-			| 
-			(Condition) Designator:dest EQUAL CondExpr QUEST Expr COLON Expr SEMI
+//			| 
+//			(Condition) Designator:dest EQUAL CondExpr QUEST Expr COLON Expr SEMI
 			|
 			(Increment) Designator:de Incop SEMI
 			|
@@ -154,10 +155,16 @@ Matched ::= (Block) LBRACE StatementList RBRACE
 			(PrintStmt) PRINT LPAREN Expr RPAREN SEMI
 			|
 			(PrintStmtNum) PRINT LPAREN Expr COMMA NUMBER RPAREN SEMI
+//			|
+//			(PrintStmtCondition) PRINT LPAREN CondExpr QUEST Expr COLON Expr RPAREN SEMI
+//			|
+//			(PrintStmtNumCondition) PRINT LPAREN CondExpr QUEST Expr COLON Expr COMMA NUMBER RPAREN SEMI
 			|
 			(ReadStmt) READ LPAREN Designator RPAREN SEMI
 			|
 			(ReturnExpr) RETURN Expr:t SEMI
+//			|
+//			(ReturnExprCondition) RETURN CondExpr QUEST Expr COLON Expr SEMI
 			|
 			(BreakExpr) BREAK SEMI
 			|
@@ -171,14 +178,18 @@ Matched ::= (Block) LBRACE StatementList RBRACE
 			|
 			(ProcCall) Designator:func LPAREN ActualPars RPAREN SEMI
 			;
+		
+Expr ::= (ConditionExpr) MatchedExpr QUEST MatchedExpr COLON MatchedExpr
+		|
+		(MatchedConditionExpr) MatchedExpr
+		;
 			
-			
-Expr ::= (AddExpr) Expr:ex Addop Term:tr
-				|
-				(MinusTermExpr) MINUS Term:tr
-				|
-				(TermExpr) Term:tr
-				;
+MatchedExpr ::= (AddExpr) MatchedExpr:ex Addop Term:tr
+		|
+		(MinusTermExpr) MINUS Term:tr
+		|
+		(TermExpr) Term:tr
+		;
 		
 Term ::= (MulExpr) Term:tr Mulop Factor:fc
 		| 
@@ -192,8 +203,12 @@ Factor ::= (TypeConst) Const
 		(FuncCall) Designator:func LPAREN ActualPars RPAREN
 		|
 		(ParenExpr) LPAREN Expr:ex RPAREN
+//		|
+//		(ParenExprCondition) LPAREN CondExpr QUEST Expr COLON Expr RPAREN
 		|
 		(ArrExpr) NEW Type LBRACKET Expr:ex RBRACKET
+//		|
+//		(ArrExprCondition) NEW Type LBRACKET CondExpr QUEST Expr COLON Expr RBRACKET
 		;
 		
 Const ::= (NumConst) NUMBER
@@ -216,6 +231,10 @@ CondTerm ::= (AndCondExpr) CondTerm:ct AND CondFact:cf
 CondFact ::= (RelCondFact) Expr:ex1 Relop Expr:ex2
 			|
 			(SingleRelCondFact) Expr:ex
+//			|
+//			(RelCondFactCondition) CondExpr QUEST Expr COLON Expr Relop CondExpr QUEST Expr COLON Expr
+//			|
+//			(SingleRelCondFactCondition) CondExpr QUEST Expr COLON Expr
 			;
 		
 ActualPars ::= (Actuals) ActualParsList
@@ -233,6 +252,8 @@ SingleActualParam ::= (SingleActualParam) Expr:ex;
 Designator ::= (SingleDesignator) IDENT:name
 			|
 			(ArrayDesignator) IDENT:name LBRACKET Expr:ex RBRACKET
+//			|
+//			(ArrayDesignatorCondition) IDENT:name LBRACKET CondExpr QUEST Expr COLON Expr RBRACKET
 			;
 
 Addop ::= (Add) PLUS

@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 18/0/2021 1:20:50
+// 18/0/2021 15:55:47
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -22,12 +22,13 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(AllVarDeclType AllVarDeclType) { }
     public void visit(Params Params) { }
     public void visit(CondExpr CondExpr) { }
+    public void visit(MatchedExpr MatchedExpr) { }
     public void visit(VarDeclList VarDeclList) { }
     public void visit(FormalParamList FormalParamList) { }
     public void visit(Expr Expr) { }
     public void visit(ActualParsList ActualParsList) { }
-    public void visit(ActualPars ActualPars) { }
     public void visit(Const Const) { }
+    public void visit(ActualPars ActualPars) { }
     public void visit(Statement Statement) { }
     public void visit(ConstVarList ConstVarList) { }
     public void visit(CondFact CondFact) { }
@@ -72,6 +73,8 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(TermExpr TermExpr) { visit(); }
     public void visit(MinusTermExpr MinusTermExpr) { visit(); }
     public void visit(AddExpr AddExpr) { visit(); }
+    public void visit(MatchedConditionExpr MatchedConditionExpr) { visit(); }
+    public void visit(ConditionExpr ConditionExpr) { visit(); }
     public void visit(ProcCall ProcCall) { visit(); }
     public void visit(MatchedDoWhile MatchedDoWhile) { visit(); }
     public void visit(MatchedIfElse MatchedIfElse) { visit(); }
@@ -84,7 +87,6 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(PrintStmt PrintStmt) { visit(); }
     public void visit(ErrorStmt ErrorStmt) { visit(); }
     public void visit(Increment Increment) { visit(); }
-    public void visit(Condition Condition) { visit(); }
     public void visit(Assignment Assignment) { visit(); }
     public void visit(Block Block) { visit(); }
     public void visit(Do Do) { visit(); }

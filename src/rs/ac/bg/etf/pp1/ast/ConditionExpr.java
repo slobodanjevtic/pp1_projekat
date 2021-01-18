@@ -5,19 +5,19 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class AddExpr extends MatchedExpr {
+public class ConditionExpr extends Expr {
 
     private MatchedExpr MatchedExpr;
-    private Addop Addop;
-    private Term Term;
+    private MatchedExpr MatchedExpr1;
+    private MatchedExpr MatchedExpr2;
 
-    public AddExpr (MatchedExpr MatchedExpr, Addop Addop, Term Term) {
+    public ConditionExpr (MatchedExpr MatchedExpr, MatchedExpr MatchedExpr1, MatchedExpr MatchedExpr2) {
         this.MatchedExpr=MatchedExpr;
         if(MatchedExpr!=null) MatchedExpr.setParent(this);
-        this.Addop=Addop;
-        if(Addop!=null) Addop.setParent(this);
-        this.Term=Term;
-        if(Term!=null) Term.setParent(this);
+        this.MatchedExpr1=MatchedExpr1;
+        if(MatchedExpr1!=null) MatchedExpr1.setParent(this);
+        this.MatchedExpr2=MatchedExpr2;
+        if(MatchedExpr2!=null) MatchedExpr2.setParent(this);
     }
 
     public MatchedExpr getMatchedExpr() {
@@ -28,20 +28,20 @@ public class AddExpr extends MatchedExpr {
         this.MatchedExpr=MatchedExpr;
     }
 
-    public Addop getAddop() {
-        return Addop;
+    public MatchedExpr getMatchedExpr1() {
+        return MatchedExpr1;
     }
 
-    public void setAddop(Addop Addop) {
-        this.Addop=Addop;
+    public void setMatchedExpr1(MatchedExpr MatchedExpr1) {
+        this.MatchedExpr1=MatchedExpr1;
     }
 
-    public Term getTerm() {
-        return Term;
+    public MatchedExpr getMatchedExpr2() {
+        return MatchedExpr2;
     }
 
-    public void setTerm(Term Term) {
-        this.Term=Term;
+    public void setMatchedExpr2(MatchedExpr MatchedExpr2) {
+        this.MatchedExpr2=MatchedExpr2;
     }
 
     public void accept(Visitor visitor) {
@@ -50,28 +50,28 @@ public class AddExpr extends MatchedExpr {
 
     public void childrenAccept(Visitor visitor) {
         if(MatchedExpr!=null) MatchedExpr.accept(visitor);
-        if(Addop!=null) Addop.accept(visitor);
-        if(Term!=null) Term.accept(visitor);
+        if(MatchedExpr1!=null) MatchedExpr1.accept(visitor);
+        if(MatchedExpr2!=null) MatchedExpr2.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(MatchedExpr!=null) MatchedExpr.traverseTopDown(visitor);
-        if(Addop!=null) Addop.traverseTopDown(visitor);
-        if(Term!=null) Term.traverseTopDown(visitor);
+        if(MatchedExpr1!=null) MatchedExpr1.traverseTopDown(visitor);
+        if(MatchedExpr2!=null) MatchedExpr2.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(MatchedExpr!=null) MatchedExpr.traverseBottomUp(visitor);
-        if(Addop!=null) Addop.traverseBottomUp(visitor);
-        if(Term!=null) Term.traverseBottomUp(visitor);
+        if(MatchedExpr1!=null) MatchedExpr1.traverseBottomUp(visitor);
+        if(MatchedExpr2!=null) MatchedExpr2.traverseBottomUp(visitor);
         accept(visitor);
     }
 
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("AddExpr(\n");
+        buffer.append("ConditionExpr(\n");
 
         if(MatchedExpr!=null)
             buffer.append(MatchedExpr.toString("  "+tab));
@@ -79,20 +79,20 @@ public class AddExpr extends MatchedExpr {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(Addop!=null)
-            buffer.append(Addop.toString("  "+tab));
+        if(MatchedExpr1!=null)
+            buffer.append(MatchedExpr1.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(Term!=null)
-            buffer.append(Term.toString("  "+tab));
+        if(MatchedExpr2!=null)
+            buffer.append(MatchedExpr2.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [AddExpr]");
+        buffer.append(") [ConditionExpr]");
         return buffer.toString();
     }
 }

@@ -292,7 +292,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	}
     
     public void visit(AddExpr addExpr) {
-		Struct te = addExpr.getExpr().struct;
+		Struct te = addExpr.getMatchedExpr().struct;
 		if(te == null) {
 			
 		}
