@@ -1,15 +1,15 @@
 // generated with ast extension for cup
 // version 0.8
-// 18/0/2021 15:55:47
+// 19/0/2021 2:2:35
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class MatchedConditionExpr extends Expr {
+public class MatchedAddExpr extends Expr {
 
     private MatchedExpr MatchedExpr;
 
-    public MatchedConditionExpr (MatchedExpr MatchedExpr) {
+    public MatchedAddExpr (MatchedExpr MatchedExpr) {
         this.MatchedExpr=MatchedExpr;
         if(MatchedExpr!=null) MatchedExpr.setParent(this);
     }
@@ -43,7 +43,7 @@ public class MatchedConditionExpr extends Expr {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("MatchedConditionExpr(\n");
+        buffer.append("MatchedAddExpr(\n");
 
         if(MatchedExpr!=null)
             buffer.append(MatchedExpr.toString("  "+tab));
@@ -52,7 +52,7 @@ public class MatchedConditionExpr extends Expr {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [MatchedConditionExpr]");
+        buffer.append(") [MatchedAddExpr]");
         return buffer.toString();
     }
 }

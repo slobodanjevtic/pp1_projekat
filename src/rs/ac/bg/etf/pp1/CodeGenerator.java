@@ -20,7 +20,7 @@ public class CodeGenerator extends VisitorAdaptor {
 
 	public void visit(PrintStmt printStmt) {
 		if(printStmt.getExpr().struct.getElemType() == SymTab.intType || printStmt.getExpr().struct.getElemType() == SymTab.charType) {
-			Code.put(Code.aload);
+			//Code.put(Code.aload);
 		}
 		if(printStmt.getExpr().struct == SymTab.intType || printStmt.getExpr().struct.getElemType() == SymTab.intType) {
 			Code.loadConst(5);
@@ -33,8 +33,8 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	public void visit(PrintStmtNum printStmtNum) {
-		if( printStmtNum.getExpr().struct.getElemType() == SymTab.intType) {
-			Code.put(Code.aload);
+		if( printStmtNum.getExpr().struct.getElemType() == SymTab.intType || printStmtNum.getExpr().struct.getElemType() == SymTab.charType) {
+			//Code.put(Code.aload);
 		}
 		Code.loadConst(printStmtNum.getN2());
 		if(printStmtNum.getExpr().struct == SymTab.intType || printStmtNum.getExpr().struct.getElemType() == SymTab.intType) {
@@ -47,6 +47,10 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	public void visit(ReadStmt readStmt) {
+		if(readStmt.getDesignator().obj.getType().getElemType() == SymTab.intType || readStmt.getDesignator().obj.getType().getElemType() == SymTab.charType) {
+			Code.put(Code.astore);
+			//arrAccess = false;
+		}
 		Code.put(Code.pop);
 		Code.put(Code.read);
 		Code.store(readStmt.getDesignator().obj);
@@ -138,6 +142,7 @@ public class CodeGenerator extends VisitorAdaptor {
 			}
 			else {
 				Code.put(Code.astore);
+				//arrAccess = false;
 				b = false;
 			}
 
@@ -150,14 +155,27 @@ public class CodeGenerator extends VisitorAdaptor {
 	public void visit(SingleDesignator designator) {
 		SyntaxNode parent = designator.getParent();
 		if(Assignment.class != parent.getClass() && FuncCall.class != parent.getClass() && ProcCall.class != parent.getClass()) {
+			//Obj o = SymTab.find(designator.getName());
 			Code.load(designator.obj);
 		}
 	}
+	
+	private boolean arrAccess = false;
 	
 	public void visit(ArrayDesignator designator) {
 		Code.load(designator.obj);
 		Code.put(Code.dup_x1);
 		Code.put(Code.pop);
+		SyntaxNode parent = designator.getParent();
+		if(Assignment.class != parent.getClass() && FuncCall.class != parent.getClass() && ProcCall.class != parent.getClass()) {
+			if(designator.getParent().getClass() == Increment.class) {
+				Code.put(Code.dup2);				
+			}
+
+			Code.put(Code.aload);
+			//arrAccess = false;
+		}
+		//arrAccess = true;
 		//Code.load(tempObj);
 	}
 	
@@ -232,8 +250,14 @@ public class CodeGenerator extends VisitorAdaptor {
 			Code.put(Code.const_m1);
 		}
 		Code.put(Code.add);
-		Code.store(inc.getDesignator().obj);
 
+		if(inc.getDesignator().obj.getType().getKind() == Struct.Array) {
+			Code.put(Code.astore);
+		}
+		else {
+			Code.store(inc.getDesignator().obj);
+		}
+		
 	}
 
 	private int jmpInstPc_1 = 0;
@@ -244,6 +268,24 @@ public class CodeGenerator extends VisitorAdaptor {
 	private int ifLevel = 0;
 	private boolean noOrInIf = true;
 	private Stack<Integer> ifJmpAdrStack = new Stack<Integer>();
+	
+	public void visit(Quest quest) {
+		Code.loadConst(0);
+		setJmpInstPc();
+		Code.putFalseJump(Code.ne, 0);
+		jmpAdr = jmpInstPc_2;
+	}
+	
+	public void visit(Colon colon) {
+		JumpInstBackpatch.setJumpOn(jmpInstPc_2, JumpInstBackpatch.jumpOnElse);
+		new JumpInstBackpatch(Code.pc, ifLevel).setJmpOn(JumpInstBackpatch.jumpOut);;
+		Code.putJump(0);
+		JumpInstBackpatch.setJmpAdr(Code.pc, JumpInstBackpatch.jumpOnElse, ifLevel);
+	}
+	
+	public void visit(ConditionExpr expr) {
+		JumpInstBackpatch.setJmpAdr(Code.pc, JumpInstBackpatch.jumpOut, ifLevel);
+	}
 	
 	public void visit(RightParen paren) {
 		inverseJmpInst(jmpInstPc_2);
@@ -264,7 +306,6 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	public void visit(AndCondExpr condExpr) {
-
 		inverseJmpInst(jmpInstPc_1);
 	}
 	

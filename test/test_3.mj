@@ -1,0 +1,21 @@
+program MJProgram
+	int x, y; 
+	const int c = 10;
+	
+	
+{
+	int fun(int a) {
+		return a + 1;
+	}
+
+	void main() int a, y;  char ch;{
+		ch ='c';
+		x = 0;
+		do {
+			x = fun(x);
+			print(ch);
+			print(x);
+		}while(x < c);
+
+	}
+}

@@ -1,0 +1,20 @@
+program MJProgram
+	int x, y z; 
+	
+{
+	void fun(int a) {
+		return a + 1;
+	}
+
+	void main() int a, y;  char ch;{
+		ch ='c';
+		x = 0
+		do {
+			x = fun();
+			if(x <)
+				print(ch);
+			print(x);
+		}while(x < c);
+
+	}
+}

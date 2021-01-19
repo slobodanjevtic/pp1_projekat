@@ -31,7 +31,7 @@ parser code {:
     	errorDetected = true;
     	StringBuilder msg = new StringBuilder(message); 
     	if (info instanceof Symbol)
-            msg.append (" na liniji ").append(((Symbol)info).left);
+            msg.append (" na liniji ").append(((Symbol)info).left + ", kolona " + ((Symbol)info).right);
         log.error(msg.toString());
     }
 
@@ -75,6 +75,8 @@ nonterminal Incop Incop;
 nonterminal Relop Relop;
 nonterminal Else Else;
 nonterminal Do Do;
+nonterminal Quest Quest;
+nonterminal Colon Colon;
 nonterminal RightParen RightParen;
 nonterminal ActualPars ActualPars;
 nonterminal ActualParsList ActualParsList;
@@ -95,11 +97,17 @@ VarDeclList ::= (VarDecl) VarDeclList:V1 AllVarDeclType:A2 {: RESULT=new VarDecl
 AllVarDeclType ::= (VarDeclType) Type:varType VarList:list SEMI {: RESULT=new VarDeclType(varType, list); RESULT.setLine(varTypeleft); :}
 			|
 			(ConstVarDeclType) CONST Type:varType ConstVarList:list SEMI {: RESULT=new ConstVarDeclType(varType, list); RESULT.setLine(varTypeleft); :}
+			|
+			(VarDeclErrorSemi) error SEMI:sm
+			{: parser.report_error("Izvrsen oporavak do ; u liniji " + smleft, null); :} {: RESULT=new VarDeclErrorSemi(); :}
 			;
 
-VarList ::= (MultipleVarList) VarList:list COMMA SingleVarDecl:var {: RESULT=new MultipleVarList(list, var); RESULT.setLine(listleft); :}
+VarList ::= (MultipleVarList) SingleVarDecl:var COMMA VarList:list {: RESULT=new MultipleVarList(var, list); RESULT.setLine(varleft); :}
 		|
 		(SingleVarList) SingleVarDecl:var {: RESULT=new SingleVarList(var); RESULT.setLine(varleft); :}
+		|
+		(VarDeclErrorComma) error VarList:list
+		{: parser.report_error("Izvrsen oporavak do , u liniji " + listleft, null); :} {: RESULT=new VarDeclErrorComma(list); RESULT.setLine(listleft); :}
 		;
 			
 SingleVarDecl ::= (SingleOneVarDecl)  IDENT:varName {: RESULT=new SingleOneVarDecl(varName); RESULT.setLine(varNameleft); :}
@@ -130,9 +138,12 @@ Params ::= (FormParams) FormalParamList:F1 {: RESULT=new FormParams(F1); RESULT.
 			(NoFormParam) {: RESULT=new NoFormParam(); :} /* epsilon */
 			;
 			
-FormalParamList ::= (MultipleFormalParamDecl) FormalParamList:F1 COMMA FormalParamDecl:F2 {: RESULT=new MultipleFormalParamDecl(F1, F2); RESULT.setLine(F1left); :}
+FormalParamList ::= (MultipleFormalParamDecl) FormalParamDecl:F1 COMMA FormalParamList:F2 {: RESULT=new MultipleFormalParamDecl(F1, F2); RESULT.setLine(F1left); :}
 				|
 				(SingleFormalParamDecl) FormalParamDecl:F1 {: RESULT=new SingleFormalParamDecl(F1); RESULT.setLine(F1left); :}
+				|
+				(ParamListErrorComma) error FormalParamList:list
+				{: parser.report_error("Izvrsen oporavak do , u liniji " + listleft, null); :} {: RESULT=new ParamListErrorComma(list); RESULT.setLine(listleft); :}
 				;
 				
 FormalParamDecl ::= (FormalParamDecl) Type:T1 IDENT:paramName {: RESULT=new FormalParamDecl(T1, paramName); RESULT.setLine(T1left); :};
@@ -162,8 +173,6 @@ Do ::= (Do) DO {: RESULT=new Do(); :};
 Matched ::= (Block) LBRACE StatementList:S1 RBRACE {: RESULT=new Block(S1); RESULT.setLine(S1left); :}
 			|
 			(Assignment) Designator:dest EQUAL Expr:ex SEMI {: RESULT=new Assignment(dest, ex); RESULT.setLine(destleft); :}
-//			| 
-//			(Condition) Designator:dest EQUAL CondExpr QUEST Expr COLON Expr SEMI
 			|
 			(Increment) Designator:de Incop:I1 SEMI {: RESULT=new Increment(de, I1); RESULT.setLine(deleft); :}
 			|
@@ -173,16 +182,10 @@ Matched ::= (Block) LBRACE StatementList:S1 RBRACE {: RESULT=new Block(S1); RESU
 			(PrintStmt) PRINT LPAREN Expr:E1 RPAREN SEMI {: RESULT=new PrintStmt(E1); RESULT.setLine(E1left); :}
 			|
 			(PrintStmtNum) PRINT LPAREN Expr:E1 COMMA NUMBER:N2 RPAREN SEMI {: RESULT=new PrintStmtNum(E1, N2); RESULT.setLine(E1left); :}
-//			|
-//			(PrintStmtCondition) PRINT LPAREN CondExpr QUEST Expr COLON Expr RPAREN SEMI
-//			|
-//			(PrintStmtNumCondition) PRINT LPAREN CondExpr QUEST Expr COLON Expr COMMA NUMBER RPAREN SEMI
 			|
 			(ReadStmt) READ LPAREN Designator:D1 RPAREN SEMI {: RESULT=new ReadStmt(D1); RESULT.setLine(D1left); :}
 			|
 			(ReturnExpr) RETURN Expr:t SEMI {: RESULT=new ReturnExpr(t); RESULT.setLine(tleft); :}
-//			|
-//			(ReturnExprCondition) RETURN CondExpr QUEST Expr COLON Expr SEMI
 			|
 			(BreakExpr) BREAK SEMI {: RESULT=new BreakExpr(); :}
 			|
@@ -192,15 +195,22 @@ Matched ::= (Block) LBRACE StatementList:S1 RBRACE {: RESULT=new Block(S1); RESU
 			|
 			(MatchedIfElse) IF LPAREN CondExpr:C1 RightParen:R2 Matched:M3 Else:E4 Matched:M5 {: RESULT=new MatchedIfElse(C1, R2, M3, E4, M5); RESULT.setLine(C1left); :}
 			|
+			(MatchedIfError) error RightParen:rp
+			{: parser.report_error("Izvrsen oporavak do ) u liniji " + rpleft, null); :} {: RESULT=new MatchedIfError(rp); RESULT.setLine(rpleft); :}
+			|
 			(MatchedDoWhile) Do:D1 Matched:M2 WHILE LPAREN CondExpr:C3 RightParen:R4 SEMI {: RESULT=new MatchedDoWhile(D1, M2, C3, R4); RESULT.setLine(D1left); :}
 			|
 			(ProcCall) Designator:func LPAREN ActualPars:A1 RPAREN SEMI {: RESULT=new ProcCall(func, A1); RESULT.setLine(funcleft); :}
 			;
 		
-Expr ::= (ConditionExpr) MatchedExpr:M1 QUEST MatchedExpr:M2 COLON MatchedExpr:M3 {: RESULT=new ConditionExpr(M1, M2, M3); RESULT.setLine(M1left); :}
+Expr ::= (ConditionExpr) MatchedExpr:M1 Quest:Q2 MatchedExpr:M3 Colon:C4 MatchedExpr:M5 {: RESULT=new ConditionExpr(M1, Q2, M3, C4, M5); RESULT.setLine(M1left); :}
 		|
-		(MatchedConditionExpr) MatchedExpr:M1 {: RESULT=new MatchedConditionExpr(M1); RESULT.setLine(M1left); :}
+		(MatchedAddExpr) MatchedExpr:M1 {: RESULT=new MatchedAddExpr(M1); RESULT.setLine(M1left); :}
 		;
+		
+Quest ::= (Quest) QUEST {: RESULT=new Quest(); :};
+
+Colon ::= (Colon) COLON {: RESULT=new Colon(); :};
 			
 MatchedExpr ::= (AddExpr) MatchedExpr:ex Addop:A1 Term:tr {: RESULT=new AddExpr(ex, A1, tr); RESULT.setLine(exleft); :}
 		|
@@ -221,12 +231,8 @@ Factor ::= (TypeConst) Const:C1 {: RESULT=new TypeConst(C1); RESULT.setLine(C1le
 		(FuncCall) Designator:func LPAREN ActualPars:A1 RPAREN {: RESULT=new FuncCall(func, A1); RESULT.setLine(funcleft); :}
 		|
 		(ParenExpr) LPAREN Expr:ex RPAREN {: RESULT=new ParenExpr(ex); RESULT.setLine(exleft); :}
-//		|
-//		(ParenExprCondition) LPAREN CondExpr QUEST Expr COLON Expr RPAREN
 		|
 		(ArrExpr) NEW Type:T1 LBRACKET Expr:ex RBRACKET {: RESULT=new ArrExpr(T1, ex); RESULT.setLine(T1left); :}
-//		|
-//		(ArrExprCondition) NEW Type LBRACKET CondExpr QUEST Expr COLON Expr RBRACKET
 		;
 		
 Const ::= (NumConst) NUMBER:N1 {: RESULT=new NumConst(N1); RESULT.setLine(N1left); :}
@@ -249,10 +255,6 @@ CondTerm ::= (AndCondExpr) CondTerm:ct AND CondFact:cf {: RESULT=new AndCondExpr
 CondFact ::= (RelCondFact) Expr:ex1 Relop:R1 Expr:ex2 {: RESULT=new RelCondFact(ex1, R1, ex2); RESULT.setLine(ex1left); :}
 			|
 			(SingleRelCondFact) Expr:ex {: RESULT=new SingleRelCondFact(ex); RESULT.setLine(exleft); :}
-//			|
-//			(RelCondFactCondition) CondExpr QUEST Expr COLON Expr Relop CondExpr QUEST Expr COLON Expr
-//			|
-//			(SingleRelCondFactCondition) CondExpr QUEST Expr COLON Expr
 			;
 		
 ActualPars ::= (Actuals) ActualParsList:A1 {: RESULT=new Actuals(A1); RESULT.setLine(A1left); :}
@@ -270,8 +272,6 @@ SingleActualParam ::= (SingleActualParam) Expr:ex {: RESULT=new SingleActualPara
 Designator ::= (SingleDesignator) IDENT:name {: RESULT=new SingleDesignator(name); RESULT.setLine(nameleft); :}
 			|
 			(ArrayDesignator) IDENT:name LBRACKET Expr:ex RBRACKET {: RESULT=new ArrayDesignator(name, ex); RESULT.setLine(nameleft); :}
-//			|
-//			(ArrayDesignatorCondition) IDENT:name LBRACKET CondExpr QUEST Expr COLON Expr RBRACKET
 			;
 
 Addop ::= (Add) PLUS {: RESULT=new Add(); :}

@@ -1,0 +1,25 @@
+program MJProgram
+	int x, y, arr[]; 
+	char ch;	
+	const int size = 5;
+	int a, b;
+{
+
+	int mul(int a, int b) {
+		return a*b;
+	}
+
+	void main() int i; {
+		
+		b = 4;
+		arr = new int[3];
+		arr[1] = 3;
+		x = -10;
+		i = 3;
+		a = i + 3;
+		
+		x = mul(a, b) + arr[1];
+		
+		print(x);
+	}
+}

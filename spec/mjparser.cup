@@ -31,7 +31,7 @@ parser code {:
     	errorDetected = true;
     	StringBuilder msg = new StringBuilder(message); 
     	if (info instanceof Symbol)
-            msg.append (" na liniji ").append(((Symbol)info).left);
+            msg.append (" na liniji ").append(((Symbol)info).left + ", kolona " + ((Symbol)info).right);
         log.error(msg.toString());
     }
 
@@ -59,7 +59,7 @@ terminal String IDENT;
 
 nonterminal VarDeclList, AllVarDeclType, VarList, MethodDeclList, SingleVarDecl, ConstVarList, SingleConstVarDecl;
 nonterminal Params, StatementList, FormalParamList, FormalParamDecl, Statement;
-nonterminal Addop, Mulop, Incop, Relop, Else, Do, RightParen, ActualPars, ActualParsList;
+nonterminal Addop, Mulop, Incop, Relop, Else, Do, Quest, Colon, RightParen, ActualPars, ActualParsList;
 nonterminal Unmatched;
 
 nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgName, Program, SingleMethodDecl, MethodTypeName, Designator, SingleActualParam;
@@ -77,11 +77,17 @@ VarDeclList ::= (VarDecl) VarDeclList AllVarDeclType
 AllVarDeclType ::= (VarDeclType) Type:varType VarList:list SEMI
 			|
 			(ConstVarDeclType) CONST Type:varType ConstVarList:list SEMI
+			|
+			(VarDeclErrorSemi) error SEMI:sm
+			{: parser.report_error("Izvrsen oporavak do ; u liniji " + smleft, null); :}
 			;
 
-VarList ::= (MultipleVarList) VarList:list COMMA SingleVarDecl:var
+VarList ::= (MultipleVarList) SingleVarDecl:var COMMA VarList:list
 		|
 		(SingleVarList) SingleVarDecl:var
+		|
+		(VarDeclErrorComma) error VarList:list
+		{: parser.report_error("Izvrsen oporavak do , u liniji " + listleft, null); :}
 		;
 			
 SingleVarDecl ::= (SingleOneVarDecl)  IDENT:varName
@@ -112,9 +118,12 @@ Params ::= (FormParams) FormalParamList
 			(NoFormParam) /* epsilon */
 			;
 			
-FormalParamList ::= (MultipleFormalParamDecl) FormalParamList COMMA FormalParamDecl
+FormalParamList ::= (MultipleFormalParamDecl) FormalParamDecl COMMA FormalParamList
 				|
 				(SingleFormalParamDecl) FormalParamDecl
+				|
+				(ParamListErrorComma) error FormalParamList:list
+				{: parser.report_error("Izvrsen oporavak do , u liniji " + listleft, null); :}
 				;
 				
 FormalParamDecl ::= (FormalParamDecl) Type IDENT:paramName;
@@ -144,8 +153,6 @@ Do ::= (Do) DO;
 Matched ::= (Block) LBRACE StatementList RBRACE
 			|
 			(Assignment) Designator:dest EQUAL Expr:ex SEMI
-//			| 
-//			(Condition) Designator:dest EQUAL CondExpr QUEST Expr COLON Expr SEMI
 			|
 			(Increment) Designator:de Incop SEMI
 			|
@@ -155,16 +162,10 @@ Matched ::= (Block) LBRACE StatementList RBRACE
 			(PrintStmt) PRINT LPAREN Expr RPAREN SEMI
 			|
 			(PrintStmtNum) PRINT LPAREN Expr COMMA NUMBER RPAREN SEMI
-//			|
-//			(PrintStmtCondition) PRINT LPAREN CondExpr QUEST Expr COLON Expr RPAREN SEMI
-//			|
-//			(PrintStmtNumCondition) PRINT LPAREN CondExpr QUEST Expr COLON Expr COMMA NUMBER RPAREN SEMI
 			|
 			(ReadStmt) READ LPAREN Designator RPAREN SEMI
 			|
 			(ReturnExpr) RETURN Expr:t SEMI
-//			|
-//			(ReturnExprCondition) RETURN CondExpr QUEST Expr COLON Expr SEMI
 			|
 			(BreakExpr) BREAK SEMI
 			|
@@ -174,15 +175,22 @@ Matched ::= (Block) LBRACE StatementList RBRACE
 			|
 			(MatchedIfElse) IF LPAREN CondExpr RightParen Matched Else Matched
 			|
+			(MatchedIfError) error RightParen:rp
+			{: parser.report_error("Izvrsen oporavak do ) u liniji " + rpleft, null); :}
+			|
 			(MatchedDoWhile) Do Matched WHILE LPAREN CondExpr RightParen SEMI
 			|
 			(ProcCall) Designator:func LPAREN ActualPars RPAREN SEMI
 			;
 		
-Expr ::= (ConditionExpr) MatchedExpr QUEST MatchedExpr COLON MatchedExpr
+Expr ::= (ConditionExpr) MatchedExpr Quest MatchedExpr Colon MatchedExpr
 		|
-		(MatchedConditionExpr) MatchedExpr
+		(MatchedAddExpr) MatchedExpr
 		;
+		
+Quest ::= (Quest) QUEST;
+
+Colon ::= (Colon) COLON;
 			
 MatchedExpr ::= (AddExpr) MatchedExpr:ex Addop Term:tr
 		|
@@ -203,12 +211,8 @@ Factor ::= (TypeConst) Const
 		(FuncCall) Designator:func LPAREN ActualPars RPAREN
 		|
 		(ParenExpr) LPAREN Expr:ex RPAREN
-//		|
-//		(ParenExprCondition) LPAREN CondExpr QUEST Expr COLON Expr RPAREN
 		|
 		(ArrExpr) NEW Type LBRACKET Expr:ex RBRACKET
-//		|
-//		(ArrExprCondition) NEW Type LBRACKET CondExpr QUEST Expr COLON Expr RBRACKET
 		;
 		
 Const ::= (NumConst) NUMBER
@@ -231,10 +235,6 @@ CondTerm ::= (AndCondExpr) CondTerm:ct AND CondFact:cf
 CondFact ::= (RelCondFact) Expr:ex1 Relop Expr:ex2
 			|
 			(SingleRelCondFact) Expr:ex
-//			|
-//			(RelCondFactCondition) CondExpr QUEST Expr COLON Expr Relop CondExpr QUEST Expr COLON Expr
-//			|
-//			(SingleRelCondFactCondition) CondExpr QUEST Expr COLON Expr
 			;
 		
 ActualPars ::= (Actuals) ActualParsList
@@ -252,8 +252,6 @@ SingleActualParam ::= (SingleActualParam) Expr:ex;
 Designator ::= (SingleDesignator) IDENT:name
 			|
 			(ArrayDesignator) IDENT:name LBRACKET Expr:ex RBRACKET
-//			|
-//			(ArrayDesignatorCondition) IDENT:name LBRACKET CondExpr QUEST Expr COLON Expr RBRACKET
 			;
 
 Addop ::= (Add) PLUS

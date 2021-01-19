@@ -1,0 +1,18 @@
+program MJProgram
+	int x, y; 
+	char ch, x;
+	
+{
+	int fun(int a) {
+		a = 8;
+	}
+
+	void main() int a y; char ch; {
+		
+		a = fun();
+		
+		ch ='c';
+		
+		print(ch);
+	}
+}

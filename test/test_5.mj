@@ -1,0 +1,28 @@
+program MJProgram
+	const int size = 10;
+	int pos[];
+	{
+		void main()
+			int x,  i;
+			//char x;
+			{ //---------- Initialize val
+				pos = new int[size];
+				i = 0;
+				 do{
+					pos[i] = 0;
+					print(i);
+					print(pos[i]);
+					i++;
+				}while (i < size);
+				//---------- Read values
+				read(x);
+				do {
+					if (x < size) {
+						pos[x]++;
+					}
+					print(x);
+					print(pos[x]);
+					read(x);
+				} while(x != -1);
+		}
+	}

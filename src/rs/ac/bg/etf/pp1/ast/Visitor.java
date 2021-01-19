@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 18/0/2021 15:55:47
+// 19/0/2021 2:2:35
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -73,10 +73,13 @@ public interface Visitor {
     public void visit(TermExpr TermExpr);
     public void visit(MinusTermExpr MinusTermExpr);
     public void visit(AddExpr AddExpr);
-    public void visit(MatchedConditionExpr MatchedConditionExpr);
+    public void visit(Colon Colon);
+    public void visit(Quest Quest);
+    public void visit(MatchedAddExpr MatchedAddExpr);
     public void visit(ConditionExpr ConditionExpr);
     public void visit(ProcCall ProcCall);
     public void visit(MatchedDoWhile MatchedDoWhile);
+    public void visit(MatchedIfError MatchedIfError);
     public void visit(MatchedIfElse MatchedIfElse);
     public void visit(ReturnNoExpr ReturnNoExpr);
     public void visit(ContinueExpr ContinueExpr);
@@ -99,6 +102,7 @@ public interface Visitor {
     public void visit(NoStmt NoStmt);
     public void visit(Statements Statements);
     public void visit(FormalParamDecl FormalParamDecl);
+    public void visit(ParamListErrorComma ParamListErrorComma);
     public void visit(SingleFormalParamDecl SingleFormalParamDecl);
     public void visit(MultipleFormalParamDecl MultipleFormalParamDecl);
     public void visit(NoFormParam NoFormParam);
@@ -113,8 +117,10 @@ public interface Visitor {
     public void visit(MultipleConstVarList MultipleConstVarList);
     public void visit(SingleArrVarDecl SingleArrVarDecl);
     public void visit(SingleOneVarDecl SingleOneVarDecl);
+    public void visit(VarDeclErrorComma VarDeclErrorComma);
     public void visit(SingleVarList SingleVarList);
     public void visit(MultipleVarList MultipleVarList);
+    public void visit(VarDeclErrorSemi VarDeclErrorSemi);
     public void visit(ConstVarDeclType ConstVarDeclType);
     public void visit(VarDeclType VarDeclType);
     public void visit(NoVarDecl NoVarDecl);

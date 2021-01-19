@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 18/0/2021 15:55:47
+// 19/0/2021 2:2:35
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -73,10 +73,13 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(TermExpr TermExpr) { visit(); }
     public void visit(MinusTermExpr MinusTermExpr) { visit(); }
     public void visit(AddExpr AddExpr) { visit(); }
-    public void visit(MatchedConditionExpr MatchedConditionExpr) { visit(); }
+    public void visit(Colon Colon) { visit(); }
+    public void visit(Quest Quest) { visit(); }
+    public void visit(MatchedAddExpr MatchedAddExpr) { visit(); }
     public void visit(ConditionExpr ConditionExpr) { visit(); }
     public void visit(ProcCall ProcCall) { visit(); }
     public void visit(MatchedDoWhile MatchedDoWhile) { visit(); }
+    public void visit(MatchedIfError MatchedIfError) { visit(); }
     public void visit(MatchedIfElse MatchedIfElse) { visit(); }
     public void visit(ReturnNoExpr ReturnNoExpr) { visit(); }
     public void visit(ContinueExpr ContinueExpr) { visit(); }
@@ -99,6 +102,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(NoStmt NoStmt) { visit(); }
     public void visit(Statements Statements) { visit(); }
     public void visit(FormalParamDecl FormalParamDecl) { visit(); }
+    public void visit(ParamListErrorComma ParamListErrorComma) { visit(); }
     public void visit(SingleFormalParamDecl SingleFormalParamDecl) { visit(); }
     public void visit(MultipleFormalParamDecl MultipleFormalParamDecl) { visit(); }
     public void visit(NoFormParam NoFormParam) { visit(); }
@@ -113,8 +117,10 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(MultipleConstVarList MultipleConstVarList) { visit(); }
     public void visit(SingleArrVarDecl SingleArrVarDecl) { visit(); }
     public void visit(SingleOneVarDecl SingleOneVarDecl) { visit(); }
+    public void visit(VarDeclErrorComma VarDeclErrorComma) { visit(); }
     public void visit(SingleVarList SingleVarList) { visit(); }
     public void visit(MultipleVarList MultipleVarList) { visit(); }
+    public void visit(VarDeclErrorSemi VarDeclErrorSemi) { visit(); }
     public void visit(ConstVarDeclType ConstVarDeclType) { visit(); }
     public void visit(VarDeclType VarDeclType) { visit(); }
     public void visit(NoVarDecl NoVarDecl) { visit(); }

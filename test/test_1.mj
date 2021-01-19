@@ -1,0 +1,39 @@
+program MJProgram
+	int x, y 
+	char ch, x;
+{
+
+	int main() {
+		
+		x = 7;
+		y= 3;
+		
+	    if( x >= 5 && y== 1 || x == 5 && y >1 && y < 7 || y <3 && y> 1 || x==0)
+	        y = 4;
+	    else 
+			if(x ==3 && y <7) {
+				if(x==3 && y <5 || y > 10) {
+					y = 6;
+				}
+				else 
+					if(x < 3){
+						x = 3;
+					}
+					else {
+						x = 1;
+					}
+				y = 9;
+			}
+			else {
+				x = y -3;
+			}
+		
+		if(x>5 || y<7) {
+			y=3;
+		}
+		
+	
+		return 0;
+	
+	}
+}
