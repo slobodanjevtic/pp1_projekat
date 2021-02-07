@@ -232,6 +232,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 		arrExpr.struct = arrExpr.getType().struct;
 	}
     
+    boolean isParamArray = false;
+    
     public void visit(FuncCall funcCall) {
 		Obj func = funcCall.getDesignator().obj;
 		
@@ -239,6 +241,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			if(func.getLevel() != callFuncArgs.size()) {
 				report_error("Semanticka greska " + func.getName() + " pogresan broj argumenata ", funcCall);
 				funcCall.struct = func.getType();	
+			}
+			else if(isParamArray && func.getName().equals("len")) {
+				funcCall.struct = func.getType();
 			}
 			else if(checkArgsType(func.getLocalSymbols())){
 				report_error("Semanticka greska " + func.getName() + " pogresan tip argumenta", funcCall);
@@ -253,6 +258,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			funcCall.struct = SymTab.noType;
 		}
 		callFuncArgs.clear();
+		isParamArray = false;
     }
     
     private int inWhile = 0;
@@ -288,6 +294,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 				
 				funcCall.struct = func.getType();	
 			}
+			else if(isParamArray && func.getName().equals("len")) {
+				funcCall.struct = func.getType();
+			}
 			else if(checkArgsType(func.getLocalSymbols())){
 				report_error("Semanticka greska " + func.getName() + " pogresan tip argumenta", funcCall);
 				funcCall.struct = func.getType();
@@ -301,6 +310,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 			funcCall.struct = SymTab.noType;
 		}
 		callFuncArgs.clear();
+		isParamArray = false;
 	}
     
     private boolean checkArgsType(Collection<Obj> actualArgs) {
@@ -308,15 +318,22 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     	Iterator<Integer> iterCall = callFuncArgs.iterator();
     	
     	while(iterActual.hasNext() && iterCall.hasNext()) {
-			if (!(iterActual.next().getKind() == iterCall.next()))
+			if (iterActual.next().getType().getKind() != iterCall.next()) {
 				return true;
+			}
     	}
     	
     	return false;
     }
     
     public void visit(SingleActualParam singleActualParam) {
-    	callFuncArgs.add(singleActualParam.getExpr().struct.getKind());
+    	if(singleActualParam.getExpr().struct.getKind() == Struct.Array) {
+    		callFuncArgs.add(singleActualParam.getExpr().struct.getElemType().getKind());
+    		isParamArray = true;
+    	}
+    	else {
+        	callFuncArgs.add(singleActualParam.getExpr().struct.getKind());    		
+    	}
 	}
     
     public void visit(NoActuals actuals) {
@@ -340,7 +357,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 	}
     
     public void visit(ConditionExpr condExpr) {
-    	condExpr.struct = condExpr.getMatchedExpr().struct;
+    	condExpr.struct = condExpr.getMatchedExpr1().struct;
 	}
     
     public void visit(MinusTermExpr minusTermExpr) {
@@ -370,6 +387,12 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     public void visit(MulExpr mulExpr) {
 		Struct te = mulExpr.getFactor().struct;
 		Struct t = mulExpr.getTerm().struct;
+		if(t.getKind() == Struct.Array) {
+			t = t.getElemType();
+		}
+		if(te.getKind() == Struct.Array) {
+			te = te.getElemType();
+		}
 		
 		if(te.equals(t) && te == SymTab.intType) {
 			mulExpr.struct = te;
@@ -433,8 +456,24 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     
     public void visit(RelCondFact condFact) {
     	if(condFact.getExpr().struct.getKind() != condFact.getExpr1().struct.getKind()) {
-    		report_error("Greska na liniji " + condFact.getLine() + " : nekompatibilni tipovi u poredjenu! ", condFact);
-    		errorDetected = true;
+    		if(condFact.getExpr().struct.getKind() == Struct.Array) {
+    			if(condFact.getExpr().struct.getElemType().getKind() != condFact.getExpr1().struct.getKind()) {
+    	    		report_error("Greska na liniji " + condFact.getLine() + " : nekompatibilni tipovi u poredjenu! ", condFact);
+    	    		errorDetected = true;
+    			}
+    		}
+    		else if(condFact.getExpr1().struct.getKind() == Struct.Array) {
+    			if(condFact.getExpr1().struct.getElemType().getKind() != condFact.getExpr().struct.getKind()) {
+    	    		report_error("Greska na liniji " + condFact.getLine() + " : nekompatibilni tipovi u poredjenu! ", condFact);
+    	    		errorDetected = true;
+    			}
+    		}
+    	}
+    	else if(condFact.getExpr().struct.getKind() == Struct.Array && condFact.getExpr1().struct.getKind() == Struct.Array) {
+    		if(condFact.getExpr().struct.getElemType().getKind() != condFact.getExpr1().struct.getElemType().getKind()) {
+        		report_error("Greska na liniji " + condFact.getLine() + " : nekompatibilni tipovi u poredjenu! ", condFact);
+        		errorDetected = true;
+    		}
     	}
 	}
     

@@ -47,13 +47,21 @@ public class CodeGenerator extends VisitorAdaptor {
 	}
 	
 	public void visit(ReadStmt readStmt) {
-		if(readStmt.getDesignator().obj.getType().getElemType() == SymTab.intType || readStmt.getDesignator().obj.getType().getElemType() == SymTab.charType) {
+
+		//Code.put(Code.pop);
+		Code.put(Code.read);
+		
+		if(readStmt.getDesignator().obj.getType().getElemType() == SymTab.intType || 
+				readStmt.getDesignator().obj.getType().getElemType() == SymTab.charType) {
 			Code.put(Code.astore);
+
 			//arrAccess = false;
 		}
-		Code.put(Code.pop);
-		Code.put(Code.read);
-		Code.store(readStmt.getDesignator().obj);
+		else {
+			Code.store(readStmt.getDesignator().obj);
+			Code.put(Code.pop);
+		}
+
 	}
 	
 	public void visit(NumConst cnst) {
@@ -172,7 +180,10 @@ public class CodeGenerator extends VisitorAdaptor {
 				Code.put(Code.dup2);				
 			}
 
-			Code.put(Code.aload);
+			if(designator.getParent().getClass() != ReadStmt.class) {
+				Code.put(Code.aload);				
+			}
+
 			//arrAccess = false;
 		}
 		//arrAccess = true;
@@ -184,19 +195,39 @@ public class CodeGenerator extends VisitorAdaptor {
 		//Code.loadConst(arrExpr.getExpr().struct.getKind());
 	}
 	
+	private boolean standardMethods(Obj functionObj) {
+		if(functionObj.getName().equals("len")) {
+			Code.put(Code.arraylength);
+			return false;
+		}
+		else if(functionObj.getName().equals("chr")) {
+			return false;
+		}
+		else if(functionObj.getName().equals("ord")) {
+			return false;
+		}
+		return true;
+	}
+	
 	public void visit(FuncCall funcCall) {
 		Obj functionObj = funcCall.getDesignator().obj;
-		int offset = functionObj.getAdr() - Code.pc;
-		Code.put(Code.call);
-		Code.put2(offset);
 		
+		if(standardMethods(functionObj)) {
+			int offset = functionObj.getAdr() - Code.pc;
+			Code.put(Code.call);
+			Code.put2(offset);
+		}		
 	}
 	
 	public void visit(ProcCall procCall) {
 		Obj functionObj = procCall.getDesignator().obj;
-		int offset = functionObj.getAdr() - Code.pc;
-		Code.put(Code.call);
-		Code.put2(offset);
+		
+		if(standardMethods(functionObj)) {
+			int offset = functionObj.getAdr() - Code.pc;
+			Code.put(Code.call);
+			Code.put2(offset);			
+		}
+
 		
 		if(procCall.getDesignator().obj.getType() != SymTab.noType) {
 			Code.put(Code.pop);
